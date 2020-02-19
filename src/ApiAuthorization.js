@@ -51,23 +51,24 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     };
   }
 
-  get securedBy() {
-    return this._securedBy;
+  get security() {
+    return this._security;
   }
 
-  set securedBy(value) {
-    const old = this._securedBy;
+  set security(value) {
+    const old = this._security;
     if (old === value) {
       return;
     }
-    this._securedBy = value;
+    this._security = value;
     this.requestUpdate();
     this._processModel();
   }
 
   constructor() {
     super();
-    this._securedBy = null;
+    // for types
+    this._security = null;
     this.redirectUri = null;
     this.compatibility = false;
     this.outlined = false;
@@ -85,7 +86,51 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   }
 
   _applyModel() {
+    const { security } = this;
+    if (!security) {
+      return;
+    }
+    this.methods = this._computeAuthMethods(security);
+  }
 
+  /**
+   * Computes list of security schemes that can be applied to the element.
+   *
+   * @param {Array<Object>} securities A list of security schemes to process.
+   * @return {Array<Object>} A list of authorization methods that can be applied to
+   * the current endpoint. Each object secribes the list of security types
+   * that can be applied to the editor. In OAS an auth method may be an union
+   * of methods.
+   */
+  _computeAuthMethods(securities) {
+    const result = [];
+    const sec = this.ns.aml.vocabularies.security;
+    const shsKey = this._getAmfKey(sec.schemes);
+    const shKey = this._getAmfKey(sec.scheme);
+    for (let i = 0, len = securities.length; i < len; i++) {
+      const security = securities[i];
+      const schemes = this._ensureArray(security[shsKey]);
+      if (!schemes) {
+        continue;
+      }
+      const item = {
+        types: [],
+        names: [],
+      };
+      for (let j = 0; j < schemes.length; j++) {
+        const scheme = schemes[j];
+        const scheme1 = this._ensureArray(scheme[shKey])[0];
+        if (!scheme1) {
+          continue;
+        }
+        const type = this._getValue(scheme1, sec.type);
+        const name = this._getValue(scheme, this.ns.aml.vocabularies.core.name);
+        item.types.push(type);
+        item.names.push(name);
+      }
+      result.push(item);
+    }
+    return result;
   }
 
   render() {
