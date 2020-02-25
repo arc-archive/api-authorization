@@ -34,13 +34,14 @@ components:
           scopes:
             all: full access
         password:
-          authorizationUrl: /oauth2/authorize-password
           tokenUrl: /oauth2/token-password
           refreshUrl: /oauth2/refresh-password
+          scopes:
+            read_pets: read your pets
         clientCredentials:
-          authorizationUrl: /oauth2/authorize-client
           tokenUrl: /oauth2/token-client
           refreshUrl: /oauth2/refresh-client
+          scopes: {}
 
 security:
   - oAuthSample:

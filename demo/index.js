@@ -64,36 +64,8 @@ class DemoPage extends ApiDemoPageBase {
     const webApi = helper._computeWebApi(this.amf);
     const method = helper._computeMethodModel(webApi, selected);
     const key = helper._getAmfKey(sec.security);
-    // const shKey = helper._getAmfKey(sec.scheme);
-    // const schemesKey = helper._getAmfKey(sec.schemes);
     const security = helper._ensureArray(method[key]);
     this.security = security;
-    // let auth;
-    // let type;
-    // for (let i = 0, len = security.length; i < len; i++) {
-    //   const securityRequirement = security[i];
-    //   const schemes = securityRequirement[schemesKey];
-    //   if (!schemes) {
-    //     continue;
-    //   }
-    //   const requirement = schemes[0];
-    //   let scheme = requirement[shKey];
-    //   if (scheme instanceof Array) {
-    //     scheme = scheme[0];
-    //   }
-    //   auth = requirement;
-    //   type = helper._getValue(scheme, sec.type);
-    //   if (type === 'Api Key') {
-    //     auth = schemes;
-    //   } else if (type === 'http') {
-    //     const settingsKey = helper._getAmfKey(sec.settings);
-    //     const settings = helper._ensureArray(scheme[settingsKey])[0];
-    //     type = helper._getValue(settings, sec.scheme);
-    //   }
-    //   break;
-    // }
-    // this.security = auth;
-    // this.securityType = type;
   }
 
   _apiListTemplate() {
@@ -155,7 +127,7 @@ class DemoPage extends ApiDemoPageBase {
       <oauth2-authorization></oauth2-authorization>
       <demo-element id="helper" .amf="${amf}"></demo-element>
 
-      <h2>API authorization method</h2>
+      <h2>API authorization</h2>
       ${this._demoTemplate()}
     `;
   }
