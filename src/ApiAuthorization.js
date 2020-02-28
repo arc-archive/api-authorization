@@ -1,5 +1,4 @@
 import { html, LitElement } from 'lit-element';
-import { ifDefined } from 'lit-html/directives/if-defined';
 import { AmfHelperMixin } from '@api-components/amf-helper-mixin/amf-helper-mixin.js';
 import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
@@ -7,22 +6,27 @@ import '@anypoint-web-components/anypoint-item/anypoint-item.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
 import '@advanced-rest-client/api-authorization-method/api-authorization-method.js';
 import styles from './Styles.js';
-/**
- * @typedef BasicSettings
- * @property {String?} username
- * @property {String?} password
- */
 
 /**
- * @typedef BearerSettings
- * @property {String?} token
+ * @typedef AuthorizationParams
+ * @property {Object} headers
+ * @property {Object} params
+ * @property {Object} cookies
+ */
+/**
+ * @typedef AuthorizationSettings
+ * @property {String} type
+ * @property {Boolean} valid
+ * @property {Object} settings
  */
 
-/**
- * @typedef BaseAmfSettings
- * @property {String?} type
- * @property {Object|Array<Object>} security
- */
+function mapAuthName(name) {
+  switch (name) {
+    case 'basic': return 'Basic authorization';
+    case 'bearer': return 'Bearer';
+    default: return name;
+  }
+}
 
 /**
  * An HTML element that renders authorization option for applied AMD model.
@@ -76,6 +80,11 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       requestUrl: { type: String },
       // Current request body. Passed to digest method.
       requestBody: { type: String },
+      /**
+       * Whether or not the element is invalid. The validation state changes
+       * when settings change or when the `validate()` function is called.
+       */
+      invalid: { type: Boolean, reflect: true }
     };
   }
 
@@ -93,19 +102,55 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     this._processModel();
   }
 
-  // get selected() {
-  //   return this._selected;
-  // }
-  //
-  // set selected(value) {
-  //   const old = this._selected;
-  //   if (old === value) {
-  //     return;
-  //   }
-  //   this._selected = value;
-  //   this.requestUpdate();
-  //   this._applySelected();
-  // }
+  /**
+   * @return {Array<String>|null} List of authorization methods to be rendered
+   */
+  get selectedMethods() {
+    const { selected, methods } = this;
+    const method = (methods || [])[selected];
+    return method ? method.types : null;
+  }
+
+  /**
+   * @return {Array<Object>|null} List of authorization schemes
+   */
+  get selectedSchemes() {
+    const { selected, methods } = this;
+    const method = (methods || [])[selected];
+    return method ? method.schemes : null;
+  }
+
+  /**
+   * In effect the same as calling the `serialize()` method
+   * @return {Array<AuthorizationSettings>} List of authorization settings.
+   */
+  get settings() {
+    return this.serialize();
+  }
+
+  /**
+   * @return {Function} Previously registered handler for `changed` event
+   */
+  get onchange() {
+    return this._onchange;
+  }
+
+  /**
+   * Registers a callback function for `changed` event
+   * @param {Function} value A callback to register. Pass `null` or `undefined`
+   * to clear the listener.
+   */
+  set onchange(value) {
+    if (this._onchange) {
+      this.removeEventListener('change', this._onchange);
+    }
+    if (typeof value !== 'function') {
+      this._onchange = null;
+      return;
+    }
+    this._onchange = value;
+    this.addEventListener('change', this._onchange);
+  }
 
   constructor() {
     super();
@@ -116,6 +161,72 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     this.outlined = false;
   }
 
+  /**
+   * Creates a list of configuration by calling the `serialize()` function on each
+   * currently rendered authorization form.
+   *
+   * @return {Array<AuthorizationSettings>} List of authorization settings.
+   */
+  serialize() {
+    const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
+    const result = [];
+    for (let i = 0, len = nodes.length; i < len; i++) {
+      result.push(this._createSettings(nodes[i]));
+    }
+    return result;
+  }
+
+  /**
+   * Validates state of the editor. It sets `invalid` property when called.
+   *
+   * Exception: OAuth 2 form reports valid even when the `accessToken` is not
+   * set. This adjust for this and reports invalid when `accessToken` for OAuth 2
+   * is missing.
+   *
+   * @return {Boolean} True when the form has valid data.
+   */
+  validate() {
+    const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
+    let valid = true;
+    for (let i = 0, len = nodes.length; i < len; i++) {
+      const node = nodes[i];
+      const result = node.validate();
+      if (!result) {
+        valid = result;
+        break;
+      } else if (node.type === 'oauth 2' && !node.accessToken) {
+        valid = false;
+        break;
+      }
+    }
+    this.invalid = !valid;
+    return valid;
+  }
+
+  /**
+   * Creates an authorization settings object for passed authorization panel.
+   * @param {Node} target api-authorization-method instance
+   * @return {AuthorizationSettings}
+   */
+  _createSettings(target) {
+    const settings = target.serialize();
+    let valid = target.validate();
+    const { type } = target;
+    if (type === 'oauth 2' && !settings.accessToken) {
+      valid = false;
+    }
+    return {
+      type,
+      valid,
+      settings,
+    };
+  }
+
+  /**
+   * A function called when the `security` property change.
+   * It calls `_applyModel()` in a debouncer so `amf` should be set regardles
+   * of the order of applying the model and security.
+   */
   _processModel() {
     if (this.__modelDebouncer) {
       return;
@@ -128,6 +239,10 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     });
   }
 
+  /**
+   * Reads list of authorization methods from the model.
+   * This function resets current selection.
+   */
   _applyModel() {
     const { security } = this;
     if (!security) {
@@ -217,14 +332,208 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     return [type, name]
   }
 
+  /**
+   * Handler for authorization method change.
+   * The setter for the `selected` computes current method to render.
+   *
+   * @param {Event} e
+   */
   _selectionHandler(e) {
     this.selected = e.target.selected;
   }
 
-  // _applySelected() {
-  //   const { selected } = this;
-  //
-  // }
+  /**
+   * A function called each time anything change in the editor.
+   * Revalidates the component and dispatches `change` event.
+   */
+  _changeHandler() {
+    this.validate();
+    this.dispatchEvent(new CustomEvent('change'));
+  }
+
+  /**
+   * Creates a map of parameters to be applied to the request.
+   * This is a convenience method to gather request parameters for current request.
+   * @return {AuthorizationParams}
+   */
+  createAuthParams() {
+    const { settings } = this;
+    const target = {
+      headers: {},
+      params: {},
+      cookies: {},
+    };
+    for (let i = 0, len = settings.length; i < len; i++) {
+      const auth = settings[i];
+      this._applyAuthParams(auth, target);
+    }
+    return target;
+  }
+
+  /**
+   * Collects parameters for an authorization method.
+   * @param {AuthorizationSettings} auth
+   * @param {Object} target An object to apply values.
+   */
+  _applyAuthParams(auth, target) {
+    switch (auth.type) {
+      case 'basic':
+        this._applyBasicParams(auth, target);
+        break;
+      case 'pass through':
+        this._applyPtParams(auth, target);
+        break;
+      case 'oauth 2':
+        this._applyOa2Params(auth, target);
+        break;
+      case 'bearer':
+        this._applyBearerParams(auth, target);
+        break;
+      case 'api key':
+        this._applyApiKeyParams(auth, target);
+        break;
+      case 'custom':
+        this._applyRamlCustomParams(auth, target);
+        break;
+    }
+  }
+
+  /**
+   * Collects parameters for Basic method.
+   * @param {AuthorizationSettings} auth
+   * @param {Object} target An object to apply values.
+   */
+  _applyBasicParams(auth, target) {
+    if (!auth.valid) {
+      return;
+    }
+    const { settings } = auth;
+    const { username, password } = settings;
+    const hash = btoa(`${username}:${password}`);
+    const value = `Basic ${hash}`;
+    if (target.headers.authorization) {
+      target.headers.authorization += `, ${value}`;
+    } else {
+      target.headers.authorization = value;
+    }
+  }
+
+  /**
+   * Applies values to the headers object.
+   * @param {Object} headers Map of headers
+   * @param {Object} target The target object to apply values to
+   */
+  _applyHeaderParams(headers, target) {
+    const keys = Object.keys(headers);
+    if (!keys.length) {
+      return;
+    }
+    keys.forEach((key) => {
+      const value = headers[key];
+      if (value === undefined) {
+        return;
+      }
+      if (target.headers[key]) {
+        target.headers[key] += `, ${value}`;
+      } else {
+        target.headers[key] = value;
+      }
+    });
+  }
+
+  /**
+   * Applies values to the query parameters object.
+   * @param {Object} params Map of parameters
+   * @param {Object} target The target object to apply values to
+   */
+  _applyQueryParams(params, target) {
+    const keys = Object.keys(params);
+    if (!keys.length) {
+      return;
+    }
+    keys.forEach((key) => {
+      const value = params[key];
+      if (value === undefined) {
+        return;
+      }
+      target.params[key] = value;
+    });
+  }
+
+  /**
+   * Collects parameters for Pass through method.
+   * @param {AuthorizationSettings} auth
+   * @param {Object} target An object to apply values.
+   */
+  _applyPtParams(auth, target) {
+    const { settings={} } = auth;
+    const { headers={}, queryParameters={} } = settings;
+    this._applyHeaderParams(headers, target);
+    this._applyQueryParams(queryParameters, target);
+  }
+
+  /**
+   * Collects parameters for OAuth 2 method.
+   * @param {AuthorizationSettings} auth
+   * @param {Object} target An object to apply values.
+   */
+  _applyOa2Params(auth, target) {
+    const { settings={} } = auth;
+    const { accessToken, deliveryMethod='header', deliveryName='authorization', tokenType='Bearer' } = settings;
+    if (!accessToken) {
+      return;
+    }
+    const isHeader = deliveryMethod === 'header';
+    const finalDeliveryName = isHeader ? deliveryName.toLowerCase() : deliveryName;
+    const value = `${tokenType} ${accessToken}`;
+    const obj = {};
+    obj[finalDeliveryName] = value;
+    if (isHeader) {
+      this._applyHeaderParams(obj, target);
+    } else {
+      this._applyQueryParams(obj, target);
+    }
+  }
+
+  /**
+   * Collects parameters for Bearer method.
+   * @param {AuthorizationSettings} auth
+   * @param {Object} target An object to apply values.
+   */
+  _applyBearerParams(auth, target) {
+    const { settings={}, valid } = auth;
+    if (!valid) {
+      return;
+    }
+    const { token } = settings;
+    this._applyHeaderParams({
+      authorization: `Bearer ${token}`
+    }, target);
+  }
+
+  /**
+   * Collects parameters for Api Key method.
+   * @param {AuthorizationSettings} auth
+   * @param {Object} target An object to apply values.
+   */
+  _applyApiKeyParams(auth, target) {
+    const { settings={} } = auth;
+    const { headers={}, queryParameters={} } = settings; /* , cookies={} */
+    this._applyHeaderParams(headers, target);
+    this._applyQueryParams(queryParameters, target);
+  }
+
+  /**
+   * Collects parameters for RAML's custom scheme method.
+   * @param {AuthorizationSettings} auth
+   * @param {Object} target An object to apply values.
+   */
+  _applyRamlCustomParams(auth, target) {
+    const { settings={} } = auth;
+    const { headers={}, queryParameters={} } = settings;
+    this._applyHeaderParams(headers, target);
+    this._applyQueryParams(queryParameters, target);
+  }
 
   render() {
     const { styles } = this;
@@ -235,6 +544,13 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     `;
   }
 
+  /**
+   * Produces a `TemplateResult` instance for method selector.
+   *
+   * Is renders only a method label if there is only single method.
+   *
+   * @return {Object}
+   */
   _selectorTemplate() {
     const {
       outlined,
@@ -250,7 +566,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     }
     const isSingle = size === 1;
     if (isSingle) {
-      return this._selectorItem(items[0], { tabindex: -1 });
+      return this._singleItemTemplate(items[0]);
     }
     return html`
     <anypoint-dropdown-menu
@@ -277,15 +593,19 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     `;
   }
 
-  _selectorItem(item, opts={}) {
-    const { tabindex } = opts;
+  _singleItemTemplate(auth) {
+    const { types } = auth;
+    const label = (types || []).map((item) => mapAuthName(item)).join(', ');
+    return html`<div class="auth-selector-label">${label}</div>`;
+  }
+
+  _selectorItem(item) {
     const { types, names } = item;
     const { compatibility } = this;
     const nLabel = (names || []).join(', ');
     return html`
     <anypoint-item
       ?compatibility="${compatibility}"
-      tabindex="${ifDefined(tabindex)}"
       label="${nLabel}"
     >
       <anypoint-item-body twoline>
@@ -293,18 +613,6 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
         <div secondary>${(types || []).join(', ')}</div>
       </anypoint-item-body>
     </anypoint-item>`;
-  }
-
-  get selectedMethods() {
-    const { selected, methods } = this;
-    const method = (methods || [])[selected];
-    return method ? method.types : undefined;
-  }
-
-  get selectedSchemes() {
-    const { selected, methods } = this;
-    const method = (methods || [])[selected];
-    return method ? method.schemes : undefined;
   }
 
   _methodsTemplate() {
@@ -348,8 +656,6 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       return '';
     }
     return html`<div
-      role="heading"
-      aria-level="3"
       class="auth-label"
     >${name}</div>`;
   }
@@ -375,6 +681,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       type="basic"
       .security="${security}"
       .amf="${amf}"
+      @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
@@ -399,6 +706,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       .security="${security}"
       .amf="${amf}"
       type="digest"
+      @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
@@ -423,6 +731,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       .security="${security}"
       .amf="${amf}"
       type="pass through"
+      @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
@@ -444,6 +753,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       .security="${security}"
       .amf="${amf}"
       type="custom"
+      @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
@@ -468,6 +778,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       type="bearer"
       .amf="${amf}"
       .security="${security}"
+      @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
@@ -494,6 +805,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       .redirectUri="${redirectUri}"
       .amf="${amf}"
       .security="${security}"
+      @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
@@ -520,6 +832,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       .redirectUri="${redirectUri}"
       .amf="${amf}"
       .security="${security}"
+      @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
@@ -541,6 +854,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       ?outlined="${outlined}"
       type="api key"
       .security="${security}"
+      @change="${this._changeHandler}"
     ></api-authorization-method>
     `;
   }

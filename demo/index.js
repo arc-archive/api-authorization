@@ -3,6 +3,7 @@ import { ApiDemoPageBase } from '@advanced-rest-client/arc-demo-helper/ApiDemoPa
 import { AmfHelperMixin } from '@api-components/amf-helper-mixin/amf-helper-mixin.js';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@advanced-rest-client/oauth-authorization/oauth2-authorization.js';
+import '@advanced-rest-client/oauth-authorization/oauth1-authorization.js';
 import '@api-components/api-navigation/api-navigation.js';
 import '../api-authorization.js';
 
@@ -125,6 +126,7 @@ class DemoPage extends ApiDemoPageBase {
     const { amf } = this;
     return html`
       <oauth2-authorization></oauth2-authorization>
+      <oauth1-authorization></oauth1-authorization>
       <demo-element id="helper" .amf="${amf}"></demo-element>
 
       <h2>API authorization</h2>
