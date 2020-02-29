@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/api-authorization",
   "description": "A custom element to render authorization editor rendering viuew based on AMF model.",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
