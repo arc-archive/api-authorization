@@ -598,12 +598,23 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     `;
   }
 
+  /**
+   * Renders template for the title when method selector is
+   * not rendered. This happens when there's only single method to render.
+   * @param {Object} auth
+   * @return {TemplateResult}
+   */
   _singleItemTemplate(auth) {
     const { types } = auth;
     const label = (types || []).map((item) => mapAuthName(item)).join(', ');
     return html`<div class="auth-selector-label">${label}</div>`;
   }
 
+  /**
+   * Creates a template for an authorization selector method.
+   * @param {Object} item
+   * @return {TemplateResult}
+   */
   _selectorItem(item) {
     const { types, names } = item;
     const { compatibility } = this;
@@ -620,6 +631,10 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     </anypoint-item>`;
   }
 
+  /**
+   * @return {TemplateResult} Template for authorization methods
+   * that should be rendered with current selection.
+   */
   _methodsTemplate() {
     const { selectedMethods } = this;
     if (!selectedMethods) {
@@ -630,6 +645,13 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     return selectedMethods.map((item, index) => this._renderMethod(item, selectedSchemes[index], renderTitles));
   }
 
+  /**
+   * Renders authorization method form.
+   * @param {String} type A type of the method read from API spec. This supports both RAML and OAS vocabulary.
+   * @param {Object} scheme Authorization scheme to be applied to the method
+   * @param {Boolean} renderTitle Whether or not a title over the method should be rendered.
+   * @return {TemplateResult|String}
+   */
   _renderMethod(type, scheme, renderTitle) {
     switch (type) {
       case 'Basic Authentication':
@@ -655,6 +677,11 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     return '';
   }
 
+  /**
+   * Renders title to be rendered above authorization method
+   * @param {Object} scheme Authorization scheme to be applied to the method
+   * @return {TemplateResult|String}
+   */
   _methodTitleTemplate(scheme) {
     const name = this._getValue(scheme, this.ns.aml.vocabularies.core.name);
     if (!name) {
