@@ -45,9 +45,12 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   static get properties() {
     return {
+      /**
+       * Currently selected method relative to `#selectedMethods` property.
+       */
       selected: { type: Number },
       /**
-       * Enables compatibility with Anypoint platform
+       * Enables compatibility with Anypoint platform.
        */
       compatibility: { type: Boolean },
       /**
@@ -70,15 +73,11 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
        * When set all controls are disabled in the form
        */
       disabled: { type: Boolean },
-      /**
-       * If set it renders a narrow layout
-       */
-      narrow: { type: Boolean, reflect: true },
-      // Current HTTP method. Passed to digest method.
+      // Current HTTP method. Passed by digest method.
       httpMethod: { type: String },
-      // Current request URL. Passed to digest method.
+      // Current request URL. Passed by digest method.
       requestUrl: { type: String },
-      // Current request body. Passed to digest method.
+      // Current request body. Passed by digest method.
       requestBody: { type: String },
       /**
        * Whether or not the element is invalid. The validation state changes
