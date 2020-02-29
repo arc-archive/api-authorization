@@ -57,7 +57,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       /**
        * Redirect URL for the OAuth2 authorization.
        */
-      redirectUri: { type: Boolean },
+      redirectUri: { type: String },
       /**
        * A list of authorization methods read from the security definition.
        */
@@ -94,6 +94,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   set security(value) {
     const old = this._security;
+    /* istanbul ignore if */
     if (old === value) {
       return;
     }
@@ -228,6 +229,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
    * of the order of applying the model and security.
    */
   _processModel() {
+    /* istanbul ignore if */
     if (this.__modelDebouncer) {
       return;
     }
@@ -268,6 +270,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     for (let i = 0, len = securities.length; i < len; i++) {
       const security = securities[i];
       const schemes = this._ensureArray(security[shsKey]);
+      /* istanbul ignore if */
       if (!schemes) {
         continue;
       }
@@ -278,6 +281,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       };
       for (let j = 0; j < schemes.length; j++) {
         const [type, name] = this._listSchemeLabels(schemes[j]);
+        /* istanbul ignore if */
         if (!type || !name) {
           continue;
         }
@@ -318,12 +322,14 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     const shKey = this._getAmfKey(sec.scheme);
     const setKey = this._getAmfKey(sec.settings);
     const scheme1 = this._ensureArray(scheme[shKey])[0];
+    /* istanbul ignore if */
     if (!scheme1) {
       return [];
     }
     let type = this._getValue(scheme1, sec.type);
     if (type === 'http') {
       const settings = this._ensureArray(scheme1[setKey]);
+      /* istanbul ignore if */
       if (!settings) {
         return [];
       }
@@ -697,6 +703,9 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       compatibility,
       outlined,
       amf,
+      httpMethod,
+      requestUrl,
+      requestBody,
     } = this;
     return html`
     ${renderTitle ? this._methodTitleTemplate(security) : ''}
@@ -705,13 +714,16 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       ?outlined="${outlined}"
       .security="${security}"
       .amf="${amf}"
+      .httpMethod="${httpMethod}"
+      .requestUrl="${requestUrl}"
+      .requestBody="${requestBody}"
       type="digest"
       @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
 
   /**
-   * Renders a template for Digest authorization.
+   * Renders a template for Pass through authorization.
    *
    * @param {?Object} security Security scheme
    * @param {?Boolean} renderTitle
@@ -736,7 +748,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   }
 
   /**
-   * Renders a template for Digest authorization.
+   * Renders a template for RAML custom authorization.
    *
    * @param {?Object} security Security scheme
    * @return {TemplateResult}

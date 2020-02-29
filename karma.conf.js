@@ -12,12 +12,36 @@ module.exports = config => {
         // npm run test -- --grep test/foo/bar.test.js
         // npm run test -- --grep test/bar/*
         { pattern: config.grep ? config.grep : 'test/**/*.test.js', type: 'module' },
+        {
+            pattern: 'node_modules/cryptojslib/components/core.js',
+            type: 'js'
+          },
+          {
+            pattern: 'node_modules/cryptojslib/rollups/sha1.js',
+            type: 'js'
+          },
+          {
+            pattern: 'node_modules/cryptojslib/components/enc-base64-min.js',
+            type: 'js'
+          },
+          {
+            pattern: 'node_modules/cryptojslib/rollups/md5.js',
+            type: 'js'
+          },
+          {
+            pattern: 'node_modules/cryptojslib/rollups/hmac-sha1.js',
+            type: 'js'
+          }
       ],
 
       esm: {
         nodeResolve: true,
       },
-      // you can overwrite/extend the config further
+      client: {
+        mocha: {
+          timeout: 10000
+        }
+      },
     }),
   );
   return config;

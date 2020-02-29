@@ -70,3 +70,18 @@ paths:
       responses:
         default:
           description: Unexpected error
+  /multi-auth-header:
+    get:
+      security:
+        - BasicAuth: []
+          BearerAuth: []
+      responses:
+        default:
+          description: Unexpected error
+    post:
+      security:
+        - BearerAuth: []
+          BasicAuth: []
+      responses:
+        default:
+          description: Unexpected error
