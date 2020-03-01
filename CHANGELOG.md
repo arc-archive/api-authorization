@@ -42,3 +42,22 @@
 * adding tests [e56e096](https://github.com/advanced-rest-client/api-authorization/commit/e56e0964249fe8c8922e876c7fdee6a091b81a0e) by Pawel Psztyc
 
 
+<a name="0.1.1"></a>
+## [0.1.1](https://github.com/advanced-rest-client/api-authorization/compare/0.0.3...0.1.1) (2020-03-01)
+
+### Build
+
+* bumping version [c060676](https://github.com/advanced-rest-client/api-authorization/commit/c0606768388d7d7ceda1b3ee472bf3effe50230b) by Pawel Psztyc
+* publishing stable preview version [07088bc](https://github.com/advanced-rest-client/api-authorization/commit/07088bc73b77912efb5ad1aafd23803797b90381) by Pawel Psztyc
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [4b11c3f](https://github.com/advanced-rest-client/api-authorization/commit/4b11c3fc118be95c18b771d8a153cee2c8545aa8) by Ci agent
+
+
+### Features
+
+* adding `forceAuthorization()` function [a485637](https://github.com/advanced-rest-client/api-authorization/commit/a4856371280e920e028528f963208d870ace8a61) by Pawel Psztyc
+
+
