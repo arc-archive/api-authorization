@@ -797,7 +797,7 @@ describe('ApiAuthorization RAML tests', () => {
         });
       });
 
-      describe('onchange', () => {
+      describe(`onchange - ${label}`, () => {
         let element;
         let amf;
 
@@ -848,6 +848,40 @@ describe('ApiAuthorization RAML tests', () => {
           element.onchange = null;
           assert.isFalse(called1);
           assert.isTrue(called2);
+        });
+      });
+
+      describe(`forceAuthorization() - ${label}`, () => {
+        let amf;
+
+        before(async () => {
+          amf = await AmfLoader.load({ fileName, compact });
+        });
+
+        it('returns false when method has no authorize() function', async () => {
+          const element = await modelFixture(amf, '/basic', 'get');
+          const result = element.forceAuthorization();
+          assert.isFalse(result);
+        });
+
+        it('ignores calling authorize when validation failed', async () => {
+          const element = await modelFixture(amf, '/basic', 'get');
+          const node = element.shadowRoot.querySelector('api-authorization-method');
+          const spy = sinon.spy(node, 'authorize');
+          const result = element.forceAuthorization(true);
+          assert.isFalse(spy.called, 'function is not called');
+          assert.isFalse(result, 'result is false');
+        });
+
+        it('returns true when valid', async () => {
+          const element = await modelFixture(amf, '/basic', 'get');
+          const form = element.shadowRoot.querySelector('api-authorization-method');
+          form.authorize = () => true;
+          form.username = 'test';
+          form.dispatchEvent(new CustomEvent('change'));
+          await nextFrame();
+          const result = element.forceAuthorization(true);
+          assert.isTrue(result);
         });
       });
     });

@@ -204,6 +204,31 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   }
 
   /**
+   * Executes `authorize()` method on each auth method currently rendered.
+   *
+   * @param {Boolean} validate By default validation is not performed before calling
+   * the `authorize()` method. Set this property to enable validation. The `authorize()`
+   * function then won't be called if the form is not valid.
+   * @return {Boolean} True if at least one function call returned `true`
+   */
+  forceAuthorization(validate=false) {
+    let result = false;
+    const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
+    for (let i = 0, len = nodes.length; i < len; i++) {
+      if (validate) {
+        if (!nodes[i].validate()) {
+          continue;
+        }
+      }
+      const nodeResult = nodes[i].authorize();
+      if (!result && nodeResult) {
+        result = nodeResult;
+      }
+    }
+    return result;
+  }
+
+  /**
    * Creates an authorization settings object for passed authorization panel.
    * @param {Node} target api-authorization-method instance
    * @return {AuthorizationSettings}
