@@ -216,3 +216,12 @@ securitySchemes:
 /oauth1-nosettings:
   get:
     securedBy: [oauth1noSettings]
+/combo-types:
+  get:
+    securedBy: [basic, digest, passthroughQueryString, custom1, oauth2, oauth1]
+/all-oauth2:
+  get:
+    securedBy: [oauth2, oauth2Annotation, oauth2grants, oauth2queryDelivery, oauth2headerDelivery, oauth2noDelivery, oauth2noGrants]
+/nil-oauth2:
+  get:
+    securedBy: [null, oauth2]

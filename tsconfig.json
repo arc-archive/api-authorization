@@ -10,7 +10,12 @@
     "strict": false,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "plugins": [
+      {
+        "name": "typescript-lit-html-plugin"
+      }
+    ]
   },
   "include": [
     "**/*.js",

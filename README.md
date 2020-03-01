@@ -51,6 +51,12 @@ npm install --save @advanced-rest-client/api-authorization
       const element = document.querySelector('api-authorization');
       element.amf = model;
       element.security = security;
+      element.onchange = (e) => {
+        if (e.target.validate()) {
+          const authList = e.target.serialize();
+          console.log(authList);
+        }
+      };
     })();
     </script>
   </body>
@@ -81,12 +87,20 @@ class SampleElement extends LitElement {
     // implement me
   }
 
+  _authChanged(e) {
+    if (e.target.validate()) {
+      const authList = e.target.serialize();
+      console.log(authList);
+    }
+  }
+
   render() {
     const { amfModel, security } = this;
     return html`
     <api-authorization
       .amf="${amfModel}"
       .security="${security}"
+      @change={this._authChanged}
     ></api-authorization-method>`;
   }
 }
@@ -121,6 +135,56 @@ When ready the values are applied to the element.
 The order of setting `amf` and `security` parameters doesn't matter as the data processing starts asynchronously.
 
 A note on clearing `settings` property. When an `undefined` or any incompatible value is set to the `settings` property, the component renders nothing and sets `aria-hidden` attribute.
+
+### Authorization settings
+
+An API may define more than one authorization method to be applied to a request. This is possible with OAS defined APIs, RAML has no such concept. Because of that the `settings` getter (or `serialize()` function) returns an array of applied authorization settings.
+
+Each object has `type` and `valid` properties. The `type` is one of the supported by the `@advanced-rest-client/api-authorization-method` values for `type` attribute. The `valid` property is a result of validating the element that provides the UI for the authorization method.
+Additionally each object contains `settings` property that contains user entered values and configuration read from the API. The properties for this object depends on selected authorization method and it is a result of calling `serialize()` function on `api-authorization-method`.
+
+### Applying authorization settings
+
+The component does not propagate changes to the headers or query parameters.
+This should be done before the request is being executed. For that call `createAuthParams()` method to generate a list of parameters to apply to the request object.
+
+```javascript
+sendRequest() {
+  const authCmp = this.shadowRoot.querySelector('api-authorization');
+  const auth = authCmp.createAuthParams();
+  const request = {
+    method: 'GET',
+    url: 'https://api.domain.com/path?',
+    headers: '',
+  };
+  Object.keys(auth.headers).forEach((header) => request.headers += `${header}: ${auth.headers[header]}\n`);
+  Object.keys(auth.params).forEach((param) => request.url += `${param}=${auth.params[param]}&`);
+}
+```
+
+### Additional steps
+
+#### Digest, NTLM
+
+Digest and NTLM authorization methods interacts with the request in a way that makes it impossible to apply the settings to the request before initializing the connection. It requires a series of requests and responses managed on the same connection. Because of that for this two methods the component produces authorization settings only. The hosting application must always check for current authorization settings and if either method is used then perform the authorization when connection is made.
+
+#### OAuth 1
+
+OAuth 1 authorization is based on signing the request data: HTTP method and the URL. This may change after the authorization is set up.
+Because of that the application that host this element must sign the request with the authorization header as described in [this document](https://oauth1.wp-api.org/docs/basics/Signing.html). Use `settings` getter to get current settings.
+
+The `@advanced-rest-client/oauth-authorization` component has `signRequest(request, auth)` method to sign a request for OAuth 1 protocol.
+
+Example
+
+```javascript
+const settings = node.serialize();
+const oauth1 = settings.find((item) => item.type === 'oauth 1');
+if (oauth1 && oauth1.valid) {
+  const oauth1auth = document.querySelector('oauth1-authorization');
+  oauth1auth.signRequest(request, oauth1.settings);
+}
+```
 
 ## Development
 

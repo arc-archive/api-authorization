@@ -1,0 +1,7 @@
+{
+  "demo-api/demo-api.raml": "RAML 1.0",
+  "api-keys/api-keys.yaml": "OAS 3.0",
+  "oauth-flows/oauth-flows.yaml": "OAS 3.0",
+  "oas-bearer/oas-bearer.yaml": "OAS 3.0",
+  "oas-demo/oas-demo.yaml": "OAS 3.0"
+}

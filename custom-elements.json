@@ -3,28 +3,80 @@
   "tags": [
     {
       "name": "api-authorization",
-      "description": "A component with a title and an action counter",
+      "description": "A custom element to render authorization editor rendering viuew based on AMF model.",
       "properties": [
         {
-          "name": "title",
-          "type": "String",
-          "description": "The title of your component",
-          "default": "Hey there"
+          "name": "selected",
+          "type": "Number",
+          "description": "Currently selected method relative to `#selectedMethods` property."
         },
         {
-          "name": "counter",
-          "type": "Number",
-          "description": "An action counter",
-          "default": 0
+          "name": "compatibility",
+          "type": "Boolean",
+          "description": "Enables compatibility with Anypoint platform."
+        },
+        {
+          "name": "outlined",
+          "type": "Boolean",
+          "description": "Enables material's outlined theme for inputs."
+        },
+        {
+          "name": "redirectUri",
+          "type": "String",
+          "description": "Redirect URL for the OAuth2 authorization."
+        },
+        {
+          "name": "methods",
+          "type": "Array",
+          "description": "A list of authorization methods read from the security definition."
+        },
+        {
+          "name": "readOnly",
+          "type": "Boolean",
+          "description": "When set the editor is in read only mode."
+        },
+        {
+          "name": "disabled",
+          "type": "Boolean",
+          "description": "When set all controls are disabled in the form"
+        },
+        {
+          "name": "httpMethod",
+          "type": "String",
+          "description": "Current HTTP method. Passed by digest method."
+        },
+        {
+          "name": "requestUrl",
+          "type": "String",
+          "description": "Current request URL. Passed by digest method."
+        },
+        {
+          "name": "requestBody",
+          "type": "String",
+          "description": "Current request body. Passed by digest method."
         }
       ],
-      "events": [],
+      "events": [
+        {
+          "name": "change"
+        }
+      ],
       "slots": [],
       "cssProperties": [
         {
-          "name": "--api-authorization-text-color",
-          "description": "Main Text Color",
-          "type": "Color"
+          "name": "--arc-font-subhead-font-size",
+          "description": "",
+          "type": "Font"
+        },
+        {
+          "name": "--arc-font-subhead-font-weight",
+          "description": "",
+          "type": "Font"
+        },
+        {
+          "name": "--arc-font-subhead-line-height",
+          "description": "",
+          "type": "Font"
         }
       ]
     }
