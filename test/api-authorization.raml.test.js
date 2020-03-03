@@ -896,7 +896,7 @@ describe('ApiAuthorization RAML tests', () => {
         });
       });
 
-      describe.only('Cashing values', () => {
+      describe('Cashing values', () => {
         let amf;
 
         before(async () => {
