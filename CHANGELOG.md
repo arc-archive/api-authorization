@@ -61,3 +61,29 @@
 * adding `forceAuthorization()` function [a485637](https://github.com/advanced-rest-client/api-authorization/commit/a4856371280e920e028528f963208d870ace8a61) by Pawel Psztyc
 
 
+<a name="0.1.2"></a>
+## [0.1.2](https://github.com/advanced-rest-client/api-authorization/compare/0.1.0...0.1.2) (2020-03-03)
+
+### Build
+
+* bumping version [ce05b5f](https://github.com/advanced-rest-client/api-authorization/commit/ce05b5f4da5881cf398d2213dfa7ed2faf094256) by Pawel Psztyc
+* bumping version [c060676](https://github.com/advanced-rest-client/api-authorization/commit/c0606768388d7d7ceda1b3ee472bf3effe50230b) by Pawel Psztyc
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [34f7b00](https://github.com/advanced-rest-client/api-authorization/commit/34f7b0077e0dc57620ca645005b80eb9dac706bf) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [4b11c3f](https://github.com/advanced-rest-client/api-authorization/commit/4b11c3fc118be95c18b771d8a153cee2c8545aa8) by Ci agent
+
+
+### Features
+
+* adding user input caching [1bf02b3](https://github.com/advanced-rest-client/api-authorization/commit/1bf02b373932bd0f7e834a1783c098cef0f47b63) by Pawel Psztyc
+* adding `forceAuthorization()` function [a485637](https://github.com/advanced-rest-client/api-authorization/commit/a4856371280e920e028528f963208d870ace8a61) by Pawel Psztyc
+
+
+### Testing
+
+* removing `.only` from a test [5b68fd6](https://github.com/advanced-rest-client/api-authorization/commit/5b68fd6a8b7c945591caeefe6e5478b7951f6f46) by Pawel Psztyc
+
+
