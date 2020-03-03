@@ -1,1 +1,1 @@
-export { ApiAuthorization } from './src/ApiAuthorization.js';
+export { ApiAuthorization, clearCache } from './src/ApiAuthorization.js';

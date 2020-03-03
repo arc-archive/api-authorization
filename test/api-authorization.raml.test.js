@@ -3,7 +3,7 @@ import { AmfLoader } from './amf-loader.js';
 import { default as sinon } from 'sinon';
 import { tap } from '@polymer/iron-test-helpers/mock-interactions.js';
 
-import '../api-authorization.js';
+import { clearCache } from '../api-authorization.js';
 
 describe('ApiAuthorization RAML tests', () => {
 
@@ -107,6 +107,10 @@ describe('ApiAuthorization RAML tests', () => {
 
         beforeEach(async () => {
           element = await modelFixture(amf, '/basic', 'get');
+        });
+
+        afterEach(() => {
+          clearCache();
         });
 
         it('has "types" in the authorization object', () => {
@@ -298,7 +302,7 @@ describe('ApiAuthorization RAML tests', () => {
         });
       });
 
-      describe(`Digest method - ${label}`, () => {
+      describe(`Pass through method - ${label}`, () => {
         let amf;
         let element;
 
@@ -313,6 +317,7 @@ describe('ApiAuthorization RAML tests', () => {
         afterEach(() => {
           const node = document.createElement('api-view-model-transformer');
           node.clearCache();
+          clearCache();
         });
 
         it('has "types" in the authorization object', () => {
@@ -495,6 +500,7 @@ describe('ApiAuthorization RAML tests', () => {
           afterEach(() => {
             const node = document.createElement('api-view-model-transformer');
             node.clearCache();
+            clearCache();
           });
 
           it('has "types" in the authorization object', () => {
@@ -571,6 +577,10 @@ describe('ApiAuthorization RAML tests', () => {
 
           before(async () => {
             amf = await AmfLoader.load({ fileName, compact });
+          });
+
+          afterEach(() => {
+            clearCache();
           });
 
           it('creates params with createAuthParams()', async () => {
@@ -665,6 +675,7 @@ describe('ApiAuthorization RAML tests', () => {
         afterEach(() => {
           const node = document.createElement('api-view-model-transformer');
           node.clearCache();
+          clearCache();
         });
 
         it('has "types" in the authorization object', () => {
@@ -882,6 +893,58 @@ describe('ApiAuthorization RAML tests', () => {
           await nextFrame();
           const result = element.forceAuthorization(true);
           assert.isTrue(result);
+        });
+      });
+
+      describe.only('Cashing values', () => {
+        let amf;
+
+        before(async () => {
+          amf = await AmfLoader.load({ fileName, compact });
+        });
+
+        it('caches values between types', async () => {
+          const element = await modelFixture(amf, '/combo-types', 'get');
+          // sets values for basic
+          const form = element.shadowRoot.querySelector('api-authorization-method');
+          form.username = 'test-username';
+          form.dispatchEvent(new CustomEvent('change'));
+          await nextFrame();
+          element.selected = 2;
+          await nextFrame();
+          element.selected = 0;
+          await nextFrame();
+          const node = element.shadowRoot.querySelector('api-authorization-method');
+          assert.equal(node.username, 'test-username');
+        });
+
+        it('clears the cache for AMF model instance', async () => {
+          const element = await modelFixture(amf, '/combo-types', 'get');
+          // sets values for basic
+          const form = element.shadowRoot.querySelector('api-authorization-method');
+          form.username = 'test-username';
+          form.dispatchEvent(new CustomEvent('change'));
+          await nextFrame();
+          element.selected = 2;
+          await nextFrame();
+          element.clearCache();
+          element.selected = 0;
+          await nextFrame();
+          const node = element.shadowRoot.querySelector('api-authorization-method');
+          assert.equal(node.username, '');
+        });
+
+        it('caches values between endpoints', async () => {
+          const element = await modelFixture(amf, '/basic', 'get');
+          // sets values for basic
+          const form = element.shadowRoot.querySelector('api-authorization-method');
+          form.username = 'test-username';
+          form.dispatchEvent(new CustomEvent('change'));
+          await nextFrame();
+          element.security = AmfLoader.lookupSecurity(amf, '/combo-types', 'get');;
+          await aTimeout(0);
+          const node = element.shadowRoot.querySelector('api-authorization-method');
+          assert.equal(node.username, 'test-username');
         });
       });
     });

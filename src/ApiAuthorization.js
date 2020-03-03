@@ -7,6 +7,15 @@ import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
 import '@advanced-rest-client/api-authorization-method/api-authorization-method.js';
 import styles from './Styles.js';
 
+let cache = new WeakMap();
+
+/**
+ * Removes all cached data.
+ */
+export const clearCache = () => {
+  cache = new WeakMap();
+};
+
 /**
  * @typedef AuthorizationParams
  * @property {Object} headers
@@ -375,10 +384,59 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * A function called each time anything change in the editor.
    * Revalidates the component and dispatches `change` event.
+   *
+   * @param {CustomEvent} e
    */
-  _changeHandler() {
+  _changeHandler(e) {
     this.validate();
     this.dispatchEvent(new CustomEvent('change'));
+    const { amf } = this;
+    if (!amf) {
+      return;
+    }
+    const { type } = e.target;
+    if (['basic', 'bearer', 'oauth 2'].indexOf(type) === -1) {
+      return;
+    }
+    const data = e.target.serialize();
+    let tmp = cache.get(amf);
+    if (!tmp) {
+      tmp = {};
+      cache.set(amf, tmp);
+    }
+    tmp[type] = data;
+  }
+
+  /**
+   * Checks for cached params in the `cache` variable and returns an object
+   * with cached values.
+   * This function returns an object event when there is no cached object for
+   * convenience to use destructing assignment.
+   *
+   * @param {String} type Authorization type to check for the authorization values
+   * @return {Object} An object with cached values
+   */
+  _readCachedParams(type) {
+    const { amf } = this;
+    if (!amf) {
+      return {};
+    }
+    const tmp = cache.get(amf);
+    if (!tmp) {
+      return {};
+    }
+    return tmp[type] || {};
+  }
+
+  /**
+   * Clears cached values for currently loaded API.
+   */
+  clearCache() {
+    const { amf } = this;
+    if (!amf) {
+      return;
+    }
+    cache.delete(amf);
   }
 
   /**
@@ -730,6 +788,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       outlined,
       amf,
     } = this;
+    const { username='', password='' } = this._readCachedParams('basic');
     return html`
     ${renderTitle ? this._methodTitleTemplate(security) : ''}
     <api-authorization-method
@@ -738,6 +797,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       type="basic"
       .security="${security}"
       .amf="${amf}"
+      .username="${username}"
+      .password="${password}"
       @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
@@ -833,6 +894,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       outlined,
       amf,
     } = this;
+    const { token='' } = this._readCachedParams('bearer');
     return html`
     ${renderTitle ? this._methodTitleTemplate(security) : ''}
     <api-authorization-method
@@ -841,6 +903,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       type="bearer"
       .amf="${amf}"
       .security="${security}"
+      .token="${token}"
       @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }
@@ -886,6 +949,11 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       redirectUri,
       amf,
     } = this;
+    const {
+      accessToken,
+      clientId,
+      clientSecret,
+    } = this._readCachedParams('oauth 2');
     return html`
     ${renderTitle ? this._methodTitleTemplate(security) : ''}
     <api-authorization-method
@@ -895,6 +963,9 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       .redirectUri="${redirectUri}"
       .amf="${amf}"
       .security="${security}"
+      .clientId="${clientId}"
+      .clientSecret="${clientSecret}"
+      .accessToken="${accessToken}"
       @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }

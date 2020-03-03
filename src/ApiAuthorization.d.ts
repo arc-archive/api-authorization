@@ -6,7 +6,11 @@ import {html, css, LitElement, TemplateResult} from 'lit-element';
 
 import {AmfHelperMixinConstructor} from '@api-components/amf-helper-mixin/amf-helper-mixin.js';
 
+export {clearCache};
+declare function clearCache(): void;
+
 export {ApiAuthorization};
+
 
 interface AuthorizationParams {
   headers: Object;
@@ -56,6 +60,7 @@ declare class ApiAuthorization extends AmfHelperMixinConstructor(LitElement) {
   createAuthParams(): AuthorizationParams;
   forceAuthorization(validate: boolean): boolean;
   render(): TemplateResult;
+  clearCache(): void;
   _createSettings(target: Node): AuthorizationSettings;
   _processModel(): void;
   _applyModel(): void;

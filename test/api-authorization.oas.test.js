@@ -329,6 +329,10 @@ describe('ApiAuthorization OAS tests', () => {
           element = await modelFixture(amf, '/bearer', 'get');
         });
 
+        afterEach(() => {
+          element.clearCache();
+        });
+
         it('has "types" in the authorization object', () => {
           const { types } = element.methods[0];
           assert.deepEqual(types, ['bearer']);
