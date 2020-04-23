@@ -4,8 +4,13 @@ import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.j
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
-import '@advanced-rest-client/api-authorization-method/api-authorization-method.js';
+import '@api-components/api-authorization-method/api-authorization-method.js';
 import styles from './Styles.js';
+
+/** @typedef {
+  import('@api-components/api-authorization-method/index.js').ApiAuthorizationMethod
+  } ApiAuthorizationMethod */
+/** @typedef {import('lit-html').TemplateResult} TemplateResult */
 
 let cache = new WeakMap();
 
@@ -138,7 +143,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   }
 
   /**
-   * @return {Function} Previously registered handler for `changed` event
+   * @return {EventListener} Previously registered handler for `changed` event
    */
   get onchange() {
     return this._onchange;
@@ -146,7 +151,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Registers a callback function for `changed` event
-   * @param {Function} value A callback to register. Pass `null` or `undefined`
+   * @param {EventListener} value A callback to register. Pass `null` or `undefined`
    * to clear the listener.
    */
   set onchange(value) {
@@ -180,7 +185,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
     const result = [];
     for (let i = 0, len = nodes.length; i < len; i++) {
-      result.push(this._createSettings(nodes[i]));
+      const node = /** @type ApiAuthorizationMethod */(nodes[i]);
+      result.push(this._createSettings(node));
     }
     return result;
   }
@@ -198,7 +204,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
     let valid = true;
     for (let i = 0, len = nodes.length; i < len; i++) {
-      const node = nodes[i];
+      const node = /** @type ApiAuthorizationMethod */(nodes[i]);
       const result = node.validate();
       if (!result) {
         valid = result;
@@ -224,12 +230,14 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     let result = false;
     const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
     for (let i = 0, len = nodes.length; i < len; i++) {
+      const node = /** @type ApiAuthorizationMethod */(nodes[i]);
+
       if (validate) {
-        if (!nodes[i].validate()) {
+        if (!node.validate()) {
           continue;
         }
       }
-      const nodeResult = nodes[i].authorize();
+      const nodeResult = node.authorize();
       if (!result && nodeResult) {
         result = nodeResult;
       }
@@ -239,7 +247,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Creates an authorization settings object for passed authorization panel.
-   * @param {Node} target api-authorization-method instance
+   * @param {ApiAuthorizationMethod} target api-authorization-method instance
    * @return {AuthorizationSettings}
    */
   _createSettings(target) {
@@ -378,7 +386,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
    * @param {Event} e
    */
   _selectionHandler(e) {
-    this.selected = e.target.selected;
+    this.selected = (/** @type {any} */ (e.target)).selected;
   }
 
   /**
@@ -394,11 +402,12 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     if (!amf) {
       return;
     }
-    const { type } = e.target;
+    const target = /** @type ApiAuthorizationMethod */ (e.target);
+    const { type } = target;
     if (['basic', 'bearer', 'oauth 2'].indexOf(type) === -1) {
       return;
     }
-    const data = e.target.serialize();
+    const data = target.serialize();
     let tmp = cache.get(amf);
     if (!tmp) {
       tmp = {};
@@ -637,7 +646,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
    *
    * Is renders only a method label if there is only single method.
    *
-   * @return {Object}
+   * @return {TemplateResult|string}
    */
   _selectorTemplate() {
     const {
@@ -715,7 +724,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   }
 
   /**
-   * @return {TemplateResult} Template for authorization methods
+   * @return {Array<TemplateResult|string>|string} Template for authorization methods
    * that should be rendered with current selection.
    */
   _methodsTemplate() {
