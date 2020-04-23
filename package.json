@@ -89,5 +89,8 @@
     "*.js": [
       "eslint --fix"
     ]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
