@@ -1,16 +1,11 @@
-import { html, LitElement } from 'lit-element';
-import { ApiDemoPageBase } from '@advanced-rest-client/arc-demo-helper/ApiDemoPage.js';
-import { AmfHelperMixin } from '@api-components/amf-helper-mixin/amf-helper-mixin.js';
+import { html } from 'lit-element';
+import { ApiDemoPage } from '@advanced-rest-client/arc-demo-helper';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@advanced-rest-client/oauth-authorization/oauth2-authorization.js';
 import '@advanced-rest-client/oauth-authorization/oauth1-authorization.js';
-import '@api-components/api-navigation/api-navigation.js';
 import '../api-authorization.js';
 
-class DemoElement extends AmfHelperMixin(LitElement) {}
-window.customElements.define('demo-element', DemoElement);
-
-class DemoPage extends ApiDemoPageBase {
+class DemoPage extends ApiDemoPage {
   constructor() {
     super();
     this.initObservableProperties([
@@ -19,19 +14,11 @@ class DemoPage extends ApiDemoPageBase {
       'outlined',
       'security',
     ]);
-    this._componentName = 'api-authorization';
+    this.componentName = 'api-authorization';
     this.demoStates = ['Filled', 'Outlined', 'Anypoint'];
     this.demoState = 0;
     this.oauth2redirect = 'http://auth.advancedrestclient.com/arc.html';
     this.authorizationUri = `${location.protocol}//${location.host}${location.pathname}oauth-authorize.html`;
-
-    this._demoStateHandler = this._demoStateHandler.bind(this);
-    this._toggleMainOption = this._toggleMainOption.bind(this);
-  }
-
-  _toggleMainOption(e) {
-    const { name, checked } = e.target;
-    this[name] = checked;
   }
 
   _demoStateHandler(e) {
@@ -39,13 +26,7 @@ class DemoPage extends ApiDemoPageBase {
     this.demoState = state;
     this.outlined = state === 1;
     this.compatibility = state === 2;
-  }
-
-  get helper() {
-    if (!this.__helper) {
-      this.__helper = document.getElementById('helper');
-    }
-    return this.__helper;
+    this._updateCompatibility();
   }
 
   _navChanged(e) {
@@ -60,12 +41,11 @@ class DemoPage extends ApiDemoPageBase {
   }
 
   setData(selected) {
-    const helper = this.helper;
-    const sec = helper.ns.aml.vocabularies.security;
-    const webApi = helper._computeWebApi(this.amf);
-    const method = helper._computeMethodModel(webApi, selected);
-    const key = helper._getAmfKey(sec.security);
-    const security = helper._ensureArray(method[key]);
+    const sec = this.ns.aml.vocabularies.security;
+    const webApi = this._computeWebApi(this.amf);
+    const method = this._computeMethodModel(webApi, selected);
+    const key = this._getAmfKey(sec.security);
+    const security = this._ensureArray(method[key]);
     this.security = security;
   }
 
@@ -77,8 +57,8 @@ class DemoPage extends ApiDemoPageBase {
       ['oauth-flows', 'OAS OAuth Flow'],
       ['oas-bearer', 'OAS Bearer'],
     ].map(([file, label]) => html`
-      <paper-item data-src="${file}-compact.json">${label} - compact model</paper-item>
-      <paper-item data-src="${file}.json">${label}</paper-item>
+      <anypoint-item data-src="${file}-compact.json">${label} - compact model</anypoint-item>
+      <anypoint-item data-src="${file}.json">${label}</anypoint-item>
       `);
   }
 
@@ -123,11 +103,9 @@ class DemoPage extends ApiDemoPageBase {
   }
 
   contentTemplate() {
-    const { amf } = this;
     return html`
       <oauth2-authorization></oauth2-authorization>
       <oauth1-authorization></oauth1-authorization>
-      <demo-element id="helper" .amf="${amf}"></demo-element>
 
       <h2>API authorization</h2>
       ${this._demoTemplate()}
