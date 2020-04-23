@@ -87,3 +87,47 @@
 * removing `.only` from a test [5b68fd6](https://github.com/advanced-rest-client/api-authorization/commit/5b68fd6a8b7c945591caeefe6e5478b7951f6f46) by Pawel Psztyc
 
 
+<a name="0.2.0"></a>
+## [0.2.0](https://github.com/advanced-rest-client/api-authorization/compare/0.1.1...0.2.0) (2020-04-23)
+
+### Build
+
+* bumping version [002f1ea](https://github.com/advanced-rest-client/api-authorization/commit/002f1ea9c5e8f143f0dd347a3ea8db5afd6369fe) by Pawel
+* bumping version [ce05b5f](https://github.com/advanced-rest-client/api-authorization/commit/ce05b5f4da5881cf398d2213dfa7ed2faf094256) by Pawel Psztyc
+
+
+### Continuous integration
+
+* updating Travis configuration [015b49f](https://github.com/advanced-rest-client/api-authorization/commit/015b49f4cdafc98f677877fd95fe9f1428139358) by Pawel
+
+
+### Update
+
+* adding publish configuration [100f3b2](https://github.com/advanced-rest-client/api-authorization/commit/100f3b20c1ed57cb29ee29736a18222d348299db) by Pawel
+* updating types [33e3955](https://github.com/advanced-rest-client/api-authorization/commit/33e3955362c578ac6648d1b094fa1a77bd102219) by Pawel
+* upgrading demo page [48ca166](https://github.com/advanced-rest-client/api-authorization/commit/48ca1665659085dce81f9536684de89f9b9e8afc) by Pawel
+* upgrading dependencies [7e90603](https://github.com/advanced-rest-client/api-authorization/commit/7e906031dacce65d8b53d087e3027c8dc7cc4496) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [625b037](https://github.com/advanced-rest-client/api-authorization/commit/625b0372453609293ba42263986763ea8ebd861f) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [34f7b00](https://github.com/advanced-rest-client/api-authorization/commit/34f7b0077e0dc57620ca645005b80eb9dac706bf) by Ci agent
+
+
+### Documentation
+
+* updating demo page [3f8bb26](https://github.com/advanced-rest-client/api-authorization/commit/3f8bb265edb26cafe453a08eac5372df3c22ac7e) by Pawel
+
+
+### Features
+
+* adding user input caching [1bf02b3](https://github.com/advanced-rest-client/api-authorization/commit/1bf02b373932bd0f7e834a1783c098cef0f47b63) by Pawel Psztyc
+
+
+### Refactor
+
+* renaming the package [9da6cd4](https://github.com/advanced-rest-client/api-authorization/commit/9da6cd4799a963e0031967f57ae84493dcc219a4) by Pawel
+
+
+### Testing
+
+* removing `.only` from a test [5b68fd6](https://github.com/advanced-rest-client/api-authorization/commit/5b68fd6a8b7c945591caeefe6e5478b7951f6f46) by Pawel Psztyc
+
+
