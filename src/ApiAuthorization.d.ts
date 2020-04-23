@@ -4,7 +4,7 @@
 
 import {html, css, LitElement, TemplateResult} from 'lit-element';
 
-import {AmfHelperMixinConstructor} from '@api-components/amf-helper-mixin/amf-helper-mixin.js';
+import {AmfHelperMixin} from '@api-components/amf-helper-mixin/amf-helper-mixin.js';
 
 export {clearCache};
 declare function clearCache(): void;
@@ -32,7 +32,7 @@ interface AuthorizationSettings {
  * Each mixin support an authorization method. When selection change (the `type`
  * property) a render function from correcponding mixin is called.
  */
-declare class ApiAuthorization extends AmfHelperMixinConstructor(LitElement) {
+declare class ApiAuthorization extends AmfHelperMixin(LitElement) {
   readonly styles: any;
   selected: number;
   /**
@@ -49,7 +49,7 @@ declare class ApiAuthorization extends AmfHelperMixinConstructor(LitElement) {
   httpMethod: string;
   requestUrl: string;
   requestBody: string;
-  onchange: Function;
+  onchange: EventListener;
   readonly selectedMethods: Array<Object>;
   readonly selectedSchemes: Array<Object>;
   readonly settings: Array<Object>;
@@ -80,7 +80,7 @@ declare class ApiAuthorization extends AmfHelperMixinConstructor(LitElement) {
   _selectorTemplate(): TemplateResult|string;
   _singleItemTemplate(auth: object): TemplateResult;
   _selectorItem(item: object): TemplateResult;
-  _methodsTemplate(): TemplateResult|string;
+  _methodsTemplate(): Array<TemplateResult|string>|string;
   _apiKeyTemplate(schema: object): TemplateResult;
   _renderMethod(type: string, scheme: object, renderTitle: boolean): TemplateResult|string;
   _methodTitleTemplate(scheme: object): TemplateResult|string;
