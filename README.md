@@ -30,7 +30,7 @@ Note, Digest authorization method is not supported at the time. If you are inter
 ### Installation
 
 ```bash
-npm install --save @advanced-rest-client/api-authorization
+npm install --save @api-components/api-authorization
 ```
 
 ### In an html file
@@ -39,7 +39,7 @@ npm install --save @advanced-rest-client/api-authorization
 <html>
   <head>
     <script type="module">
-      import '@advanced-rest-client/api-authorization/api-authorization.js';
+      import '@api-components/api-authorization/api-authorization.js';
     </script>
   </head>
   <body>
@@ -67,7 +67,7 @@ npm install --save @advanced-rest-client/api-authorization
 
 ```js
 import { LitElement, html } from 'lit-element';
-import '@advanced-rest-client/api-authorization/api-authorization.js';
+import '@api-components/api-authorization/api-authorization.js';
 
 class SampleElement extends LitElement {
   static get properties() {
@@ -140,7 +140,7 @@ A note on clearing `settings` property. When an `undefined` or any incompatible 
 
 An API may define more than one authorization method to be applied to a request. This is possible with OAS defined APIs, RAML has no such concept. Because of that the `settings` getter (or `serialize()` function) returns an array of applied authorization settings.
 
-Each object has `type` and `valid` properties. The `type` is one of the supported by the `@advanced-rest-client/api-authorization-method` values for `type` attribute. The `valid` property is a result of validating the element that provides the UI for the authorization method.
+Each object has `type` and `valid` properties. The `type` is one of the supported by the `@api-components/api-authorization-method` values for `type` attribute. The `valid` property is a result of validating the element that provides the UI for the authorization method.
 Additionally each object contains `settings` property that contains user entered values and configuration read from the API. The properties for this object depends on selected authorization method and it is a result of calling `serialize()` function on `api-authorization-method`.
 
 ### Applying authorization settings
