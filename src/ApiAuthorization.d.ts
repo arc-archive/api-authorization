@@ -58,7 +58,7 @@ declare class ApiAuthorization extends AmfHelperMixin(LitElement) {
   serialize(): Array<AuthorizationSettings>;
   validate(): boolean;
   createAuthParams(): AuthorizationParams;
-  forceAuthorization(validate: boolean): boolean;
+  forceAuthorization(validate: boolean): Promise<boolean>;
   render(): TemplateResult;
   clearCache(): void;
   _createSettings(target: Node): AuthorizationSettings;
