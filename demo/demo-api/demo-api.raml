@@ -155,6 +155,7 @@ securitySchemes:
   oauth2headerDelivery: !include oauth2-header-delivery.raml
   oauth2noDelivery: !include oauth2-no-delivery.raml
   oauth2noGrants: !include oauth2-no-grants.raml
+  oauth2pkce: !include oauth2-pkce.raml
   oauth1: !include oauth_1_0.raml
   oauth1signature: !include oauth_1_0_signature.raml
   oauth1noSignature: !include oauth_1_0_no-signature.raml
@@ -204,6 +205,9 @@ securitySchemes:
 /oauth2-no-grants:
   get:
     securedBy: [oauth2noGrants]
+/oauth2-pkce:
+  get:
+    securedBy: [oauth2pkce]
 /oauth1:
   get:
     securedBy: [oauth1]
