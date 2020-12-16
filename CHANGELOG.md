@@ -131,3 +131,36 @@
 * removing `.only` from a test [5b68fd6](https://github.com/advanced-rest-client/api-authorization/commit/5b68fd6a8b7c945591caeefe6e5478b7951f6f46) by Pawel Psztyc
 
 
+<a name="0.3.0"></a>
+## [0.3.0](https://github.com/advanced-rest-client/api-authorization/compare/0.1.2...0.3.0) (2020-12-16)
+
+### Build
+
+* bumping version [002f1ea](https://github.com/advanced-rest-client/api-authorization/commit/002f1ea9c5e8f143f0dd347a3ea8db5afd6369fe) by Pawel
+
+
+### Continuous integration
+
+* updating Travis configuration [015b49f](https://github.com/advanced-rest-client/api-authorization/commit/015b49f4cdafc98f677877fd95fe9f1428139358) by Pawel
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [cd54308](https://github.com/advanced-rest-client/api-authorization/commit/cd543081633f818ceb5115208b966f7010e30915) by Ci agent
+* adding publish configuration [100f3b2](https://github.com/advanced-rest-client/api-authorization/commit/100f3b20c1ed57cb29ee29736a18222d348299db) by Pawel
+* updating types [33e3955](https://github.com/advanced-rest-client/api-authorization/commit/33e3955362c578ac6648d1b094fa1a77bd102219) by Pawel
+* upgrading demo page [48ca166](https://github.com/advanced-rest-client/api-authorization/commit/48ca1665659085dce81f9536684de89f9b9e8afc) by Pawel
+* upgrading dependencies [7e90603](https://github.com/advanced-rest-client/api-authorization/commit/7e906031dacce65d8b53d087e3027c8dc7cc4496) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [625b037](https://github.com/advanced-rest-client/api-authorization/commit/625b0372453609293ba42263986763ea8ebd861f) by Ci agent
+
+
+### Documentation
+
+* updating demo page [3f8bb26](https://github.com/advanced-rest-client/api-authorization/commit/3f8bb265edb26cafe453a08eac5372df3c22ac7e) by Pawel
+
+
+### Refactor
+
+* renaming the package [9da6cd4](https://github.com/advanced-rest-client/api-authorization/commit/9da6cd4799a963e0031967f57ae84493dcc219a4) by Pawel
+
+
