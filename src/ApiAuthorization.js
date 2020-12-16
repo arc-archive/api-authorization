@@ -226,7 +226,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
    * function then won't be called if the form is not valid.
    * @return {Boolean} True if at least one function call returned `true`
    */
-  forceAuthorization(validate=false) {
+  async forceAuthorization(validate=false) {
     let result = false;
     const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
     for (let i = 0, len = nodes.length; i < len; i++) {
@@ -237,7 +237,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
           continue;
         }
       }
-      const nodeResult = node.authorize();
+      const nodeResult = await node.authorize();
       if (!result && nodeResult) {
         result = nodeResult;
       }

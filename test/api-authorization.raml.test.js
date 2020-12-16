@@ -557,7 +557,6 @@ describe('ApiAuthorization RAML tests', () => {
             assert.typeOf(settings.settings, 'object');
             const aset = settings.settings;
 
-            assert.equal(aset.type, 'implicit', 'type is set');
             assert.equal(aset.grantType, 'implicit', 'grantType is set');
             assert.equal(aset.clientId, 'test-client-id', 'clientId is set');
             assert.equal(aset.accessToken, 'test-token', 'accessToken is set');
@@ -871,7 +870,7 @@ describe('ApiAuthorization RAML tests', () => {
 
         it('returns false when method has no authorize() function', async () => {
           const element = await modelFixture(amf, '/basic', 'get');
-          const result = element.forceAuthorization();
+          const result = await element.forceAuthorization();
           assert.isFalse(result);
         });
 
@@ -879,7 +878,7 @@ describe('ApiAuthorization RAML tests', () => {
           const element = await modelFixture(amf, '/basic', 'get');
           const node = element.shadowRoot.querySelector('api-authorization-method');
           const spy = sinon.spy(node, 'authorize');
-          const result = element.forceAuthorization(true);
+          const result = await element.forceAuthorization(true);
           assert.isFalse(spy.called, 'function is not called');
           assert.isFalse(result, 'result is false');
         });
@@ -891,7 +890,7 @@ describe('ApiAuthorization RAML tests', () => {
           form.username = 'test';
           form.dispatchEvent(new CustomEvent('change'));
           await nextFrame();
-          const result = element.forceAuthorization(true);
+          const result = await element.forceAuthorization(true);
           assert.isTrue(result);
         });
       });
