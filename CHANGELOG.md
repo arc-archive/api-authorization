@@ -164,3 +164,13 @@
 * renaming the package [9da6cd4](https://github.com/advanced-rest-client/api-authorization/commit/9da6cd4799a963e0031967f57ae84493dcc219a4) by Pawel
 
 
+<a name="0.5.0"></a>
+## [0.5.0](https://github.com/advanced-rest-client/api-authorization/compare/0.2.0...0.5.0) (2021-01-09)
+
+### Update
+
+* merging with auth methor compoennt [b98c7d2](https://github.com/advanced-rest-client/api-authorization/commit/b98c7d2c215ca0e5074167f5d2013962a6b92d55) by Pawel Psztyc
+* [ci skip] automated merge master->stage. syncing main branches [59e57dd](https://github.com/advanced-rest-client/api-authorization/commit/59e57dd11f07a2c4710bcc7e7d01014393f1981b) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [cd54308](https://github.com/advanced-rest-client/api-authorization/commit/cd543081633f818ceb5115208b966f7010e30915) by Ci agent
+
+
