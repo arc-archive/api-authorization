@@ -1,23 +1,38 @@
 import { html, fixture, assert, aTimeout, nextFrame } from '@open-wc/testing';
+import sinon from 'sinon';
+import { ApiViewModel } from '@api-components/api-forms';
 import { AmfLoader } from './amf-loader.js';
-import { default as sinon } from 'sinon';
-import { tap } from '@polymer/iron-test-helpers/mock-interactions.js';
+import { clearCache } from '../index.js';
+import '../api-authorization.js';
 
-import { clearCache } from '../api-authorization.js';
+/** @typedef {import('../index').ApiAuthorization} ApiAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.DigestAuthorization} DigestAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
+/** @typedef {import('../src/types').ApiKeySettings} ApiKeySettings */
+/** @typedef {import('../src/types').PassThroughSetting} PassThroughSetting */
+/** @typedef {import('../src/types').RamlCustomSetting} RamlCustomSetting */
 
 describe('ApiAuthorization RAML tests', () => {
-
+  /**
+   * @return {Promise<ApiAuthorization>} 
+   */
   async function basicFixture(amf, security) {
-    return (await fixture(html`<api-authorization
+    return (fixture(html`<api-authorization
       .amf="${amf}"
       .security="${security}"
     ></api-authorization>`));
   }
 
+  /**
+   * @return {Promise<ApiAuthorization>} 
+   */
   async function modelFixture(amf, endpoint, method) {
     const security = AmfLoader.lookupSecurity(amf, endpoint, method);
     const element = await basicFixture(amf, security);
-    await aTimeout();
+    await aTimeout(0);
     return element;
   }
 
@@ -51,7 +66,7 @@ describe('ApiAuthorization RAML tests', () => {
       describe(`applying AMF model - ${label}`, () => {
         let amf;
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         it('sets single authorization method', async () => {
@@ -99,10 +114,10 @@ describe('ApiAuthorization RAML tests', () => {
       describe(`Basic method - ${label}`, () => {
         const username = 'uname';
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -166,7 +181,7 @@ describe('ApiAuthorization RAML tests', () => {
           assert.deepEqual(settings, [{
             valid: true,
             type: 'basic',
-            settings: {
+            config: {
               username,
               password: ''
             }
@@ -197,10 +212,10 @@ describe('ApiAuthorization RAML tests', () => {
       describe(`Digest method - ${label}`, () => {
         const username = 'uname';
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -269,19 +284,19 @@ describe('ApiAuthorization RAML tests', () => {
           const settings = element.settings[0];
           assert.isTrue(settings.valid, 'valid is true');
           assert.equal(settings.type, 'digest', 'type is set');
-          assert.typeOf(settings.settings, 'object');
-          const aset = settings.settings;
-          assert.equal(aset.algorithm, 'MD5', 'algorithm is set');
-          assert.equal(aset.nc, '00000001', 'nc is set');
-          assert.typeOf(aset.cnonce, 'string', 'cnonce is set');
-          assert.typeOf(aset.response, 'string', 'response is set');
-          assert.equal(aset.nonce, 'nonce', 'nonce is set');
-          assert.equal(aset.opaque, 'opaque', 'opaque is set');
-          assert.equal(aset.password, '', 'password is set');
-          assert.equal(aset.qop, 'auth', 'qop is set');
-          assert.equal(aset.realm, 'realm', 'realm is set');
-          assert.equal(aset.username, username, 'username is set');
-          assert.equal(aset.uri, '/endpoint', 'uri is set');
+          assert.typeOf(settings.config, 'object');
+          const aSettings = /** @type DigestAuthorization */ (settings.config);
+          assert.equal(aSettings.algorithm, 'MD5', 'algorithm is set');
+          assert.equal(aSettings.nc, '00000001', 'nc is set');
+          assert.typeOf(aSettings.cnonce, 'string', 'cnonce is set');
+          assert.typeOf(aSettings.response, 'string', 'response is set');
+          assert.equal(aSettings.nonce, 'nonce', 'nonce is set');
+          assert.equal(aSettings.opaque, 'opaque', 'opaque is set');
+          assert.equal(aSettings.password, '', 'password is set');
+          assert.equal(aSettings.qop, 'auth', 'qop is set');
+          assert.equal(aSettings.realm, 'realm', 'realm is set');
+          assert.equal(aSettings.username, username, 'username is set');
+          assert.equal(aSettings.uri, '/endpoint', 'uri is set');
         });
 
         it('creates params with createAuthParams()', async () => {
@@ -304,10 +319,10 @@ describe('ApiAuthorization RAML tests', () => {
 
       describe(`Pass through method - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -315,8 +330,8 @@ describe('ApiAuthorization RAML tests', () => {
         });
 
         afterEach(() => {
-          const node = document.createElement('api-view-model-transformer');
-          node.clearCache();
+          const model = new ApiViewModel();
+          model.clearCache();
           clearCache();
         });
 
@@ -375,10 +390,10 @@ describe('ApiAuthorization RAML tests', () => {
           const settings = element.settings[0];
           assert.isTrue(settings.valid, 'valid is true');
           assert.equal(settings.type, 'pass through', 'type is set');
-          assert.typeOf(settings.settings, 'object');
-          const aset = settings.settings;
-          assert.typeOf(aset.headers, 'object', 'headers is set');
-          assert.typeOf(aset.queryParameters, 'object', 'queryParameters is set');
+          assert.typeOf(settings.config, 'object');
+          const aSet = /** @type PassThroughSetting */ (settings.config);
+          assert.typeOf(aSet.headers, 'object', 'headers is set');
+          assert.typeOf(aSet.params, 'object', 'queryParameters is set');
         });
 
         it('creates params with createAuthParams()', async () => {
@@ -399,10 +414,10 @@ describe('ApiAuthorization RAML tests', () => {
 
       describe(`RAML Custom method - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -410,8 +425,8 @@ describe('ApiAuthorization RAML tests', () => {
         });
 
         afterEach(() => {
-          const node = document.createElement('api-view-model-transformer');
-          node.clearCache();
+          const model = new ApiViewModel();
+          model.clearCache();
         });
 
         it('has "types" in the authorization object', () => {
@@ -462,10 +477,10 @@ describe('ApiAuthorization RAML tests', () => {
           const settings = element.settings[0];
           assert.isTrue(settings.valid, 'valid is true');
           assert.equal(settings.type, 'custom', 'type is set');
-          assert.typeOf(settings.settings, 'object');
-          const aset = settings.settings;
-          assert.typeOf(aset.headers, 'object', 'headers is set');
-          assert.typeOf(aset.queryParameters, 'object', 'queryParameters is set');
+          assert.typeOf(settings.config, 'object');
+          const aSet = /** @type RamlCustomSetting */ (settings.config);
+          assert.typeOf(aSet.headers, 'object', 'headers is set');
+          assert.typeOf(aSet.params, 'object', 'queryParameters is set');
         });
 
         it('creates params with createAuthParams()', async () => {
@@ -487,10 +502,10 @@ describe('ApiAuthorization RAML tests', () => {
       describe(`Oauth 2 method - ${label}`, () => {
         describe('Basics', () => {
           let amf;
-          let element;
+          let element = /** @type ApiAuthorization */ (null);
 
           before(async () => {
-            amf = await AmfLoader.load({ fileName, compact });
+            amf = await AmfLoader.load(Boolean(compact), String(fileName));
           });
 
           beforeEach(async () => {
@@ -498,8 +513,8 @@ describe('ApiAuthorization RAML tests', () => {
           });
 
           afterEach(() => {
-            const node = document.createElement('api-view-model-transformer');
-            node.clearCache();
+            const model = new ApiViewModel();
+            model.clearCache();
             clearCache();
           });
 
@@ -554,18 +569,18 @@ describe('ApiAuthorization RAML tests', () => {
             const settings = element.settings[0];
             assert.isTrue(settings.valid, 'valid is true');
             assert.equal(settings.type, 'oauth 2', 'type is set');
-            assert.typeOf(settings.settings, 'object');
-            const aset = settings.settings;
+            assert.typeOf(settings.config, 'object');
 
-            assert.equal(aset.grantType, 'implicit', 'grantType is set');
-            assert.equal(aset.clientId, 'test-client-id', 'clientId is set');
-            assert.equal(aset.accessToken, 'test-token', 'accessToken is set');
-            assert.equal(aset.tokenType, 'Bearer', 'tokenType is set');
-            assert.deepEqual(aset.scopes, ['profile', 'email'], 'scopes is set');
-            assert.equal(aset.deliveryMethod, 'header', 'deliveryMethod is set');
-            assert.equal(aset.deliveryName, 'Authorization', 'deliveryName is set');
-            assert.equal(aset.authorizationUri, 'https://auth.com', 'authorizationUri is set');
-            assert.equal(aset.redirectUri, element.redirectUri, 'redirectUri is set');
+            const aSet = /** @type OAuth2Authorization */ (settings.config);
+            assert.equal(aSet.grantType, 'implicit', 'grantType is set');
+            assert.equal(aSet.clientId, 'test-client-id', 'clientId is set');
+            assert.equal(aSet.accessToken, 'test-token', 'accessToken is set');
+            assert.equal(aSet.tokenType, 'Bearer', 'tokenType is set');
+            assert.deepEqual(aSet.scopes, ['profile', 'email'], 'scopes is set');
+            assert.equal(aSet.deliveryMethod, 'header', 'deliveryMethod is set');
+            assert.equal(aSet.deliveryName, 'Authorization', 'deliveryName is set');
+            assert.equal(aSet.authorizationUri, 'https://auth.com', 'authorizationUri is set');
+            assert.equal(aSet.redirectUri, element.redirectUri, 'redirectUri is set');
           });
         });
 
@@ -575,7 +590,7 @@ describe('ApiAuthorization RAML tests', () => {
           const clientId = 'test-client-id';
 
           before(async () => {
-            amf = await AmfLoader.load({ fileName, compact });
+            amf = await AmfLoader.load(Boolean(compact), String(fileName));
           });
 
           afterEach(() => {
@@ -591,7 +606,7 @@ describe('ApiAuthorization RAML tests', () => {
             await nextFrame();
             const result = element.createAuthParams();
             assert.deepEqual(result.headers, {
-              authorization: 'Bearer ' + accessToken,
+              authorization: `Bearer ${  accessToken}`,
             }, 'has headers');
             assert.deepEqual(result.params, {}, 'has no params');
             assert.deepEqual(result.cookies, {}, 'has no cookies');
@@ -620,7 +635,7 @@ describe('ApiAuthorization RAML tests', () => {
             const result = element.createAuthParams();
             assert.deepEqual(result.headers, {}, 'has no headers');
             assert.deepEqual(result.params, {
-              access_token: 'Bearer ' + accessToken,
+              access_token: `Bearer ${  accessToken}`,
             }, 'has params');
             assert.deepEqual(result.cookies, {}, 'has no cookies');
           });
@@ -635,7 +650,7 @@ describe('ApiAuthorization RAML tests', () => {
             await nextFrame();
             const result = element.createAuthParams();
             assert.deepEqual(result.headers, {
-              token: 'Bearer ' + accessToken,
+              token: `Bearer ${  accessToken}`,
             }, 'has no headers');
             assert.deepEqual(result.params, {}, 'has no params');
             assert.deepEqual(result.cookies, {}, 'has no cookies');
@@ -651,7 +666,7 @@ describe('ApiAuthorization RAML tests', () => {
             await nextFrame();
             const result = element.createAuthParams();
             assert.deepEqual(result.headers, {
-              authorization: 'Bearer ' + accessToken,
+              authorization: `Bearer ${  accessToken}`,
             }, 'has no headers');
             assert.deepEqual(result.params, {}, 'has no params');
             assert.deepEqual(result.cookies, {}, 'has no cookies');
@@ -661,10 +676,10 @@ describe('ApiAuthorization RAML tests', () => {
 
       describe(`OAuth 1 method - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -672,8 +687,8 @@ describe('ApiAuthorization RAML tests', () => {
         });
 
         afterEach(() => {
-          const node = document.createElement('api-view-model-transformer');
-          node.clearCache();
+          const model = new ApiViewModel();
+          model.clearCache();
           clearCache();
         });
 
@@ -717,10 +732,10 @@ describe('ApiAuthorization RAML tests', () => {
 
       describe(`Combo types - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -768,7 +783,7 @@ describe('ApiAuthorization RAML tests', () => {
           assert.equal(form.type, 'basic');
         });
 
-        it('changes editor type programaticaly', async () => {
+        it('changes editor type programmatically', async () => {
           element.selected = 1;
           await nextFrame();
           const form = element.shadowRoot.querySelector('api-authorization-method');
@@ -776,8 +791,8 @@ describe('ApiAuthorization RAML tests', () => {
         });
 
         it('changes editor type with user interaction', async () => {
-          const node = element.shadowRoot.querySelector('anypoint-item[label="custom1"]');
-          tap(node);
+          const node = /** @type HTMLElement */ (element.shadowRoot.querySelector('anypoint-item[label="custom1"]'));
+          node.click();
           await nextFrame();
           const form = element.shadowRoot.querySelector('api-authorization-method');
           assert.equal(form.type, 'custom');
@@ -786,10 +801,10 @@ describe('ApiAuthorization RAML tests', () => {
 
       describe(`RAML null method - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -808,19 +823,19 @@ describe('ApiAuthorization RAML tests', () => {
       });
 
       describe(`onchange - ${label}`, () => {
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
         let amf;
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
           element = await modelFixture(amf, '/basic', 'get');
         });
 
-        function makeChange(element) {
-          const form = element.shadowRoot.querySelector('api-authorization-method');
+        function makeChange(elm) {
+          const form = elm.shadowRoot.querySelector('api-authorization-method');
           form.username = 'test';
           form.dispatchEvent(new CustomEvent('change'));
         }
@@ -865,12 +880,12 @@ describe('ApiAuthorization RAML tests', () => {
         let amf;
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         it('returns false when method has no authorize() function', async () => {
           const element = await modelFixture(amf, '/basic', 'get');
-          const result = await element.forceAuthorization();
+          const result = await element.forceAuthorization(undefined);
           assert.isFalse(result);
         });
 
@@ -886,7 +901,7 @@ describe('ApiAuthorization RAML tests', () => {
         it('returns true when valid', async () => {
           const element = await modelFixture(amf, '/basic', 'get');
           const form = element.shadowRoot.querySelector('api-authorization-method');
-          form.authorize = () => true;
+          form.authorize = () => Promise.resolve(true);
           form.username = 'test';
           form.dispatchEvent(new CustomEvent('change'));
           await nextFrame();
@@ -899,7 +914,7 @@ describe('ApiAuthorization RAML tests', () => {
         let amf;
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         it('caches values between types', async () => {

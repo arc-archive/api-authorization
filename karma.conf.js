@@ -32,10 +32,6 @@ module.exports = (config) => {
           pattern: 'node_modules/cryptojslib/rollups/hmac-sha1.js',
           type: 'js'
         },
-        {
-          pattern: 'node_modules/@api-components/api-view-model-transformer/api-view-model-transformer.js',
-          type: 'module'
-        }
       ],
 
       esm: {

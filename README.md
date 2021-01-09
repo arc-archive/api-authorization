@@ -15,17 +15,20 @@ delivery method is used (header or query parameter).
 
 This element support security description for both RAML and OAS.
 
--   OAuth 2
--   OAuth 2 with annotation (see [RAML's docs](https://github.com/raml-org/raml-annotations/tree/master/annotations/security-schemes))
--   OAuth 1
--   RAML custom scheme
--   Pass Through
--   Api Key (OAS)
--   Bearer (OAS)
+- OAuth 2
+- OAuth 2 with annotation (see [RAML's docs](https://github.com/raml-org/raml-annotations/tree/master/annotations/security-schemes))
+- OAuth 1
+- RAML custom scheme
+- Pass Through
+- Api Key (OAS)
+- Bearer (OAS)
 
-Note, Digest authorization method is not supported at the time. If you are interested in this method, please, let us know.
+Note, Digest authorization method is not supported at the time. If you are interested in this method, please, let us know. This component fully support all OAS security schemes.
 
 ## Usage
+
+The component extends `@advanced-rest-client/authorization-method` package to add API model support. The base component renders basic authorization methods.
+The element requires to apply AML's JSON+LD model to the `amf` property and scheme definition to the `security` property.
 
 ### Installation
 
@@ -43,7 +46,7 @@ npm install --save @api-components/api-authorization
     </script>
   </head>
   <body>
-    <api-authorization-method redirecturi="..."></api-authorization-method>
+    <api-authorization-method redirectUri="..."></api-authorization-method>
     <script>
     (async () => {
       const model = await getAmfModel();
@@ -201,6 +204,7 @@ npm start
 ```
 
 ### Running the tests
+
 ```sh
 npm test
 ```

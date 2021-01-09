@@ -1,26 +1,40 @@
 import { html, fixture, assert, aTimeout, nextFrame } from '@open-wc/testing';
+import sinon from 'sinon';
 import { AmfLoader } from './amf-loader.js';
-import { default as sinon } from 'sinon';
-
 import '../api-authorization.js';
 
-describe('ApiAuthorization OAS tests', () => {
+/** @typedef {import('../index').ApiAuthorization} ApiAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.DigestAuthorization} DigestAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
+/** @typedef {import('../src/types').ApiKeySettings} ApiKeySettings */
+/** @typedef {import('../src/types').PassThroughSetting} PassThroughSetting */
+/** @typedef {import('../src/types').RamlCustomSetting} RamlCustomSetting */
 
+describe('ApiAuthorization OAS tests', () => {
+  /**
+   * @return {Promise<ApiAuthorization>} 
+   */
   async function basicFixture(amf, security) {
-    return (await fixture(html`<api-authorization
+    return (fixture(html`<api-authorization
       .amf="${amf}"
       .security="${security}"
     ></api-authorization>`));
   }
 
+  /**
+   * @return {Promise<ApiAuthorization>} 
+   */
   async function modelFixture(amf, endpoint, method) {
     const security = AmfLoader.lookupSecurity(amf, endpoint, method);
     const element = await basicFixture(amf, security);
-    await aTimeout();
+    await aTimeout(0);
     return element;
   }
 
-  describe('Signle vs multiple', () => {
+  describe('Single vs multiple', () => {
     [
       ['Full model', false],
       ['Compact model', true]
@@ -29,10 +43,10 @@ describe('ApiAuthorization OAS tests', () => {
 
       describe(`Single method - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -57,10 +71,10 @@ describe('ApiAuthorization OAS tests', () => {
 
       describe(`Multiple with union - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -102,10 +116,10 @@ describe('ApiAuthorization OAS tests', () => {
 
       describe(`Multiple unions - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -151,10 +165,10 @@ describe('ApiAuthorization OAS tests', () => {
 
       describe(`Basic tests - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -213,9 +227,9 @@ describe('ApiAuthorization OAS tests', () => {
           const settings = element.settings[0];
           assert.isTrue(settings.valid, 'valid is true');
           assert.equal(settings.type, 'api key', 'type is set');
-          assert.typeOf(settings.settings, 'object');
-          const aset = settings.settings;
-          assert.typeOf(aset.queryParameters, 'object', 'queryParameters is set');
+          assert.typeOf(settings.config, 'object');
+          const asset = /** @type ApiKeySettings */ (settings.config);
+          assert.typeOf(asset.params, 'object', 'queryParameters is set');
         });
 
         it('creates params with createAuthParams() (params)', async () => {
@@ -234,10 +248,10 @@ describe('ApiAuthorization OAS tests', () => {
 
       describe(`Junction of methods - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -278,10 +292,10 @@ describe('ApiAuthorization OAS tests', () => {
 
       describe(`Separate methods - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -319,10 +333,10 @@ describe('ApiAuthorization OAS tests', () => {
 
       describe(`Basic tests - ${label}`, () => {
         let amf;
-        let element;
+        let element = /** @type ApiAuthorization */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load({ fileName, compact });
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
         });
 
         beforeEach(async () => {
@@ -381,9 +395,9 @@ describe('ApiAuthorization OAS tests', () => {
           const settings = element.settings[0];
           assert.isTrue(settings.valid, 'valid is true');
           assert.equal(settings.type, 'bearer', 'type is set');
-          assert.typeOf(settings.settings, 'object');
-          const aset = settings.settings;
-          assert.equal(aset.token, 'test', 'token is set');
+          assert.typeOf(settings.config, 'object');
+          const asset = /** @type BearerAuthorization */ (settings.config);
+          assert.equal(asset.token, 'test', 'token is set');
         });
 
         it('creates params with createAuthParams()', async () => {
@@ -407,44 +421,46 @@ describe('ApiAuthorization OAS tests', () => {
       ['Full model', false],
       ['Compact model', true]
     ].forEach(([label, compact]) => {
-      const fileName = 'oas-demo';
-      let amf;
+      describe(String(label), () => {
+        const fileName = 'oas-demo';
+        let amf;
 
-      before(async () => {
-        amf = await AmfLoader.load({ fileName, compact });
-      });
+        before(async () => {
+          amf = await AmfLoader.load(Boolean(compact), String(fileName));
+        });
 
-      function updateForms(element) {
-        const basicForm = element.shadowRoot.querySelector('api-authorization-method[type=basic]');
-        basicForm.username = 'test-username';
-        basicForm.dispatchEvent(new CustomEvent('change'));
-        const bearerForm = element.shadowRoot.querySelector('api-authorization-method[type=bearer]');
-        bearerForm.token = 'test-token';
-        bearerForm.dispatchEvent(new CustomEvent('change'));
-      }
+        function updateForms(element) {
+          const basicForm = element.shadowRoot.querySelector('api-authorization-method[type=basic]');
+          basicForm.username = 'test-username';
+          basicForm.dispatchEvent(new CustomEvent('change'));
+          const bearerForm = element.shadowRoot.querySelector('api-authorization-method[type=bearer]');
+          bearerForm.token = 'test-token';
+          bearerForm.dispatchEvent(new CustomEvent('change'));
+        }
 
-      it('creates authorization header with both values', async () => {
-        const element = await modelFixture(amf, '/multi-auth-header', 'get');
-        updateForms(element);
-        await nextFrame();
-        const result = element.createAuthParams();
-        assert.deepEqual(result.headers, {
-          authorization: 'Basic dGVzdC11c2VybmFtZTo=, Bearer test-token',
-        }, 'has headers');
-        assert.deepEqual(result.params, {}, 'has no params');
-        assert.deepEqual(result.cookies, {}, 'has no cookies');
-      });
+        it('creates authorization header with both values', async () => {
+          const element = await modelFixture(amf, '/multi-auth-header', 'get');
+          updateForms(element);
+          await nextFrame();
+          const result = element.createAuthParams();
+          assert.deepEqual(result.headers, {
+            authorization: 'Basic dGVzdC11c2VybmFtZTo=, Bearer test-token',
+          }, 'has headers');
+          assert.deepEqual(result.params, {}, 'has no params');
+          assert.deepEqual(result.cookies, {}, 'has no cookies');
+        });
 
-      it('add basic header value to existing header', async () => {
-        const element = await modelFixture(amf, '/multi-auth-header', 'post');
-        updateForms(element);
-        await nextFrame();
-        const result = element.createAuthParams();
-        assert.deepEqual(result.headers, {
-          authorization: 'Bearer test-token, Basic dGVzdC11c2VybmFtZTo=',
-        }, 'has headers');
-        assert.deepEqual(result.params, {}, 'has no params');
-        assert.deepEqual(result.cookies, {}, 'has no cookies');
+        it('add basic header value to existing header', async () => {
+          const element = await modelFixture(amf, '/multi-auth-header', 'post');
+          updateForms(element);
+          await nextFrame();
+          const result = element.createAuthParams();
+          assert.deepEqual(result.headers, {
+            authorization: 'Bearer test-token, Basic dGVzdC11c2VybmFtZTo=',
+          }, 'has headers');
+          assert.deepEqual(result.params, {}, 'has no params');
+          assert.deepEqual(result.cookies, {}, 'has no cookies');
+        });
       });
     });
   });

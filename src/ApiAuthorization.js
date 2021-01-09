@@ -1,16 +1,29 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-continue */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable class-methods-use-this */
 import { html, LitElement } from 'lit-element';
 import { AmfHelperMixin } from '@api-components/amf-helper-mixin/amf-helper-mixin.js';
 import '@anypoint-web-components/anypoint-dropdown-menu/anypoint-dropdown-menu.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
-import '@api-components/api-authorization-method/api-authorization-method.js';
-import styles from './Styles.js';
+import '../api-authorization-method.js';
+import styles from './styles/Auth.styles.js';
 
-/** @typedef {
-  import('@api-components/api-authorization-method/index.js').ApiAuthorizationMethod
-  } ApiAuthorizationMethod */
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BasicAuthorization} BasicAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth1Authorization} OAuth1Authorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.DigestAuthorization} DigestAuthorization */
+/** @typedef {import('@advanced-rest-client/arc-types').Authorization.BearerAuthorization} BearerAuthorization */
+/** @typedef {import('./ApiAuthorizationMethod').ApiAuthorizationMethod} ApiAuthorizationMethod */
+/** @typedef {import('./types').ApiAuthorizationSettings} ApiAuthorizationSettings */
+/** @typedef {import('./types').AuthorizationParams} AuthorizationParams */
+/** @typedef {import('./types').ApiKeySettings} ApiKeySettings */
+/** @typedef {import('./types').PassThroughSetting} PassThroughSetting */
+/** @typedef {import('./types').RamlCustomSetting} RamlCustomSetting */
 
 let cache = new WeakMap();
 
@@ -20,19 +33,6 @@ let cache = new WeakMap();
 export const clearCache = () => {
   cache = new WeakMap();
 };
-
-/**
- * @typedef AuthorizationParams
- * @property {Object} headers
- * @property {Object} params
- * @property {Object} cookies
- */
-/**
- * @typedef AuthorizationSettings
- * @property {String} type
- * @property {Boolean} valid
- * @property {Object} settings
- */
 
 function mapAuthName(name) {
   switch (name) {
@@ -44,11 +44,6 @@ function mapAuthName(name) {
 
 /**
  * An HTML element that renders authorization option for applied AMD model.
- *
- * @extends LitElement
- * @mixes AmfHelperMixinConstructor
- * @mixes AmfHelperMixin
- * @class ApiAuthorization
  */
 export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   get styles() {
@@ -136,7 +131,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * In effect the same as calling the `serialize()` method
-   * @return {Array<AuthorizationSettings>} List of authorization settings.
+   * @return {ApiAuthorizationSettings[]} List of authorization settings.
    */
   get settings() {
     return this.serialize();
@@ -173,13 +168,18 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     this.redirectUri = null;
     this.compatibility = false;
     this.outlined = false;
+    this.readOnly = false;
+    this.disabled = false;
+    this.httpMethod = undefined;
+    this.requestUrl = undefined;
+    this.requestBody = undefined;
   }
 
   /**
    * Creates a list of configuration by calling the `serialize()` function on each
    * currently rendered authorization form.
    *
-   * @return {Array<AuthorizationSettings>} List of authorization settings.
+   * @return {ApiAuthorizationSettings[]} List of authorization settings.
    */
   serialize() {
     const nodes = this.shadowRoot.querySelectorAll('api-authorization-method');
@@ -221,10 +221,10 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Executes `authorize()` method on each auth method currently rendered.
    *
-   * @param {Boolean} validate By default validation is not performed before calling
+   * @param {boolean} validate By default validation is not performed before calling
    * the `authorize()` method. Set this property to enable validation. The `authorize()`
    * function then won't be called if the form is not valid.
-   * @return {Boolean} True if at least one function call returned `true`
+   * @return {Promise<boolean>} True if at least one function call returned `true`
    */
   async forceAuthorization(validate=false) {
     let result = false;
@@ -248,25 +248,25 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Creates an authorization settings object for passed authorization panel.
    * @param {ApiAuthorizationMethod} target api-authorization-method instance
-   * @return {AuthorizationSettings}
+   * @return {ApiAuthorizationSettings}
    */
   _createSettings(target) {
-    const settings = target.serialize();
+    const config = target.serialize();
     let valid = target.validate();
     const { type } = target;
-    if (type === 'oauth 2' && !settings.accessToken) {
+    if (type === 'oauth 2' && !config.accessToken) {
       valid = false;
     }
     return {
       type,
       valid,
-      settings,
+      config,
     };
   }
 
   /**
    * A function called when the `security` property change.
-   * It calls `_applyModel()` in a debouncer so `amf` should be set regardles
+   * It calls `_applyModel()` in a debouncer so `amf` should be set regardless
    * of the order of applying the model and security.
    */
   _processModel() {
@@ -298,9 +298,9 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Computes list of security schemes that can be applied to the element.
    *
-   * @param {Array<Object>} securities A list of security schemes to process.
-   * @return {Array<Object>} A list of authorization methods that can be applied to
-   * the current endpoint. Each object secribes the list of security types
+   * @param {any[]} securities A list of security schemes to process.
+   * @return {any[]} A list of authorization methods that can be applied to
+   * the current endpoint. Each object describes the list of security types
    * that can be applied to the editor. In OAS an auth method may be an union
    * of methods.
    */
@@ -342,19 +342,18 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
    * Authorization` is `basic` in OAS. This function does not normalize this values.
    *
    * Note 2 (pawel): Because in OAS it is possible to declare multiple authorization methods to be
-   * used for an andpoint with the same request the types can be duplicate
+   * used for an anypoint with the same request the types can be duplicate
    * (common case with Api Key type). Because of that this element exposes the
    * name as defined in the API spec file, even though it is a variable used
    * to keep a reference to the security. Technically it is incorrect as this
    * probably tell nothing to the end user but I don't see other option right now.
    *
-   * @param {Object} scheme Authorization scheme to process
-   * @return {Array<String>} First item is the type and the second is the name.
-   * May be undefined.
+   * @param {any} scheme Authorization scheme to process
+   * @return {string[]} First item is the type and the second is the name. May be undefined.
    */
   _listSchemeLabels(scheme) {
     const sec = this.ns.aml.vocabularies.security;
-    const name = this._getValue(scheme, this.ns.aml.vocabularies.core.name);
+    const name = /** @type string */ (this._getValue(scheme, this.ns.aml.vocabularies.core.name));
     if (name === 'null') {
       // RAML allows to define a "null" scheme. This means that the authorization
       // for this endpoint is optional.
@@ -367,14 +366,14 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     if (!scheme1) {
       return [];
     }
-    let type = this._getValue(scheme1, sec.type);
+    let type = /** @type string */ (this._getValue(scheme1, sec.type));
     if (type === 'http') {
       const settings = this._ensureArray(scheme1[setKey]);
       /* istanbul ignore if */
       if (!settings) {
         return [];
       }
-      type = this._getValue(settings[0], sec.scheme);
+      type = /** @type string */ (this._getValue(settings[0], sec.scheme));
     }
     return [type, name]
   }
@@ -402,12 +401,12 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     if (!amf) {
       return;
     }
-    const target = /** @type ApiAuthorizationMethod */ (e.target);
-    const { type } = target;
+    const node = /** @type ApiAuthorizationMethod */ (e.target);
+    const { type } = node;
     if (['basic', 'bearer', 'oauth 2'].indexOf(type) === -1) {
       return;
     }
-    const data = target.serialize();
+    const data = node.serialize();
     let tmp = cache.get(amf);
     if (!tmp) {
       tmp = {};
@@ -455,11 +454,12 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
    */
   createAuthParams() {
     const { settings } = this;
-    const target = {
+
+    const target = /** @type AuthorizationParams */ ({
       headers: {},
       params: {},
       cookies: {},
-    };
+    });
     for (let i = 0, len = settings.length; i < len; i++) {
       const auth = settings[i];
       this._applyAuthParams(auth, target);
@@ -469,8 +469,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Collects parameters for an authorization method.
-   * @param {AuthorizationSettings} auth
-   * @param {Object} target An object to apply values.
+   * @param {ApiAuthorizationSettings} auth
+   * @param {AuthorizationParams} target An object to apply the values to.
    */
   _applyAuthParams(auth, target) {
     switch (auth.type) {
@@ -492,19 +492,20 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       case 'custom':
         this._applyRamlCustomParams(auth, target);
         break;
+      default:
     }
   }
 
   /**
    * Collects parameters for Basic method.
-   * @param {AuthorizationSettings} auth
-   * @param {Object} target An object to apply values.
+   * @param {ApiAuthorizationSettings} auth
+   * @param {AuthorizationParams} target An object to apply values.
    */
   _applyBasicParams(auth, target) {
     if (!auth.valid) {
       return;
     }
-    const { settings } = auth;
+    const settings = /** @type BasicAuthorization */ (auth.config);
     const { username, password } = settings;
     const hash = btoa(`${username}:${password}`);
     const value = `Basic ${hash}`;
@@ -517,8 +518,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Applies values to the headers object.
-   * @param {Object} headers Map of headers
-   * @param {Object} target The target object to apply values to
+   * @param {Record<string, string>} headers Map of headers
+   * @param {AuthorizationParams} target The target object to apply values to
    */
   _applyHeaderParams(headers, target) {
     const keys = Object.keys(headers);
@@ -540,7 +541,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Applies values to the query parameters object.
-   * @param {Object} params Map of parameters
+   * @param {Record<string, string>} params Map of parameters
    * @param {Object} target The target object to apply values to
    */
   _applyQueryParams(params, target) {
@@ -559,23 +560,22 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Collects parameters for Pass through method.
-   * @param {AuthorizationSettings} auth
-   * @param {Object} target An object to apply values.
+   * @param {ApiAuthorizationSettings} auth
+   * @param {AuthorizationParams} target An object to apply values.
    */
   _applyPtParams(auth, target) {
-    const { settings={} } = auth;
-    const { headers={}, queryParameters={} } = settings;
+    const { headers={}, params={} } = /** @type PassThroughSetting */ (auth.config || {});
     this._applyHeaderParams(headers, target);
-    this._applyQueryParams(queryParameters, target);
+    this._applyQueryParams(params, target);
   }
 
   /**
    * Collects parameters for OAuth 2 method.
-   * @param {AuthorizationSettings} auth
-   * @param {Object} target An object to apply values.
+   * @param {ApiAuthorizationSettings} auth
+   * @param {AuthorizationParams} target An object to apply values.
    */
   _applyOa2Params(auth, target) {
-    const { settings={} } = auth;
+    const settings = /** @type OAuth2Authorization */ (auth.config || {});
     const { accessToken, deliveryMethod='header', deliveryName='authorization', tokenType='Bearer' } = settings;
     if (!accessToken) {
       return;
@@ -583,7 +583,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     const isHeader = deliveryMethod === 'header';
     const finalDeliveryName = isHeader ? deliveryName.toLowerCase() : deliveryName;
     const value = `${tokenType} ${accessToken}`;
-    const obj = {};
+    const obj = /** @type Record<string, string> */ ({});
     obj[finalDeliveryName] = value;
     if (isHeader) {
       this._applyHeaderParams(obj, target);
@@ -594,48 +594,44 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Collects parameters for Bearer method.
-   * @param {AuthorizationSettings} auth
-   * @param {Object} target An object to apply values.
+   * @param {ApiAuthorizationSettings} auth
+   * @param {AuthorizationParams} target An object to apply values.
    */
   _applyBearerParams(auth, target) {
-    const { settings={}, valid } = auth;
+    const { valid } = auth;
     if (!valid) {
       return;
     }
-    const { token } = settings;
-    this._applyHeaderParams({
-      authorization: `Bearer ${token}`
-    }, target);
+    const config = /** @type BearerAuthorization */ (auth.config || {});
+    const { token } = config;
+    this._applyHeaderParams({ authorization: `Bearer ${token}` }, target);
   }
 
   /**
    * Collects parameters for Api Key method.
-   * @param {AuthorizationSettings} auth
-   * @param {Object} target An object to apply values.
+   * @param {ApiAuthorizationSettings} auth
+   * @param {AuthorizationParams} target An object to apply values.
    */
   _applyApiKeyParams(auth, target) {
-    const { settings={} } = auth;
-    const { headers={}, queryParameters={} } = settings; /* , cookies={} */
+    const { headers={}, params={} } = /** @type ApiKeySettings */ (auth.config || {}); /* , cookies={} */
     this._applyHeaderParams(headers, target);
-    this._applyQueryParams(queryParameters, target);
+    this._applyQueryParams(params, target);
   }
 
   /**
    * Collects parameters for RAML's custom scheme method.
-   * @param {AuthorizationSettings} auth
-   * @param {Object} target An object to apply values.
+   * @param {ApiAuthorizationSettings} auth
+   * @param {AuthorizationParams} target An object to apply values.
    */
   _applyRamlCustomParams(auth, target) {
-    const { settings={} } = auth;
-    const { headers={}, queryParameters={} } = settings;
+    const { headers={}, params={} } = /** @type RamlCustomSetting */ (auth.config || {});
     this._applyHeaderParams(headers, target);
-    this._applyQueryParams(queryParameters, target);
+    this._applyQueryParams(params, target);
   }
 
   render() {
-    const { styles } = this;
     return html`
-    <style>${styles}</style>
+    <style>${this.styles}</style>
     ${this._selectorTemplate()}
     ${this._methodsTemplate()}
     `;
@@ -670,18 +666,15 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       name="selected"
       .outlined="${outlined}"
       .compatibility="${compatibility}"
-      .readOnly="${readOnly}"
-      .disabled="${disabled}"
+      .disabled="${disabled||readOnly}"
     >
       <label slot="label">Authorization method</label>
       <anypoint-listbox
         slot="dropdown-content"
         .selected="${selected}"
         @selected-changed="${this._selectionHandler}"
-        .outlined="${outlined}"
         .compatibility="${compatibility}"
-        .readOnly="${readOnly}"
-        .disabled="${disabled}"
+        .disabled="${disabled||readOnly}"
         attrForItemTitle="label"
       >
         ${items.map((item) => this._selectorItem(item))}
@@ -739,10 +732,10 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Renders authorization method form.
-   * @param {String} type A type of the method read from API spec. This supports both RAML and OAS vocabulary.
-   * @param {Object} scheme Authorization scheme to be applied to the method
-   * @param {Boolean} renderTitle Whether or not a title over the method should be rendered.
-   * @return {TemplateResult|String}
+   * @param {string} type A type of the method read from API spec. This supports both RAML and OAS vocabulary.
+   * @param {any} scheme Authorization scheme to be applied to the method
+   * @param {boolean} renderTitle Whether or not a title over the method should be rendered.
+   * @return {TemplateResult|string}
    */
   _renderMethod(type, scheme, renderTitle) {
     switch (type) {
@@ -771,8 +764,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
 
   /**
    * Renders title to be rendered above authorization method
-   * @param {Object} scheme Authorization scheme to be applied to the method
-   * @return {TemplateResult|String}
+   * @param {any} scheme Authorization scheme to be applied to the method
+   * @return {TemplateResult|string}
    */
   _methodTitleTemplate(scheme) {
     const name = this._getValue(scheme, this.ns.aml.vocabularies.core.name);
@@ -787,8 +780,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for Basic authorization.
    *
-   * @param {?Object} security Security scheme
-   * @param {?Boolean} renderTitle
+   * @param {any} security Security scheme
+   * @param {boolean=} renderTitle
    * @return {TemplateResult}
    */
   _basicAuthTemplate(security, renderTitle) {
@@ -815,8 +808,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for Digest authorization.
    *
-   * @param {?Object} security Security scheme
-   * @param {?Boolean} renderTitle
+   * @param {any} security Security scheme
+   * @param {boolean=} renderTitle
    * @return {TemplateResult}
    */
   _digestAuthTemplate(security, renderTitle) {
@@ -846,8 +839,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for Pass through authorization.
    *
-   * @param {?Object} security Security scheme
-   * @param {?Boolean} renderTitle
+   * @param {any} security Security scheme
+   * @param {boolean=} renderTitle
    * @return {TemplateResult}
    */
   _passThroughAuthTemplate(security, renderTitle) {
@@ -871,7 +864,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for RAML custom authorization.
    *
-   * @param {?Object} security Security scheme
+   * @param {any} security Security scheme
    * @return {TemplateResult}
    */
   _ramlCustomAuthTemplate(security) {
@@ -893,8 +886,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for Bearer authorization (OAS).
    *
-   * @param {?Object} security Security scheme
-   * @param {?Boolean} renderTitle
+   * @param {any} security Security scheme
+   * @param {boolean=} renderTitle
    * @return {TemplateResult}
    */
   _bearerAuthTemplate(security, renderTitle) {
@@ -920,8 +913,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for OAuth 1 authorization.
    *
-   * @param {?Object} security Security scheme
-   * @param {?Boolean} renderTitle
+   * @param {any} security Security scheme
+   * @param {boolean=} renderTitle
    * @return {TemplateResult}
    */
   _oa1AuthTemplate(security, renderTitle) {
@@ -947,8 +940,8 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for OAuth 2 authorization.
    *
-   * @param {?Object} security Security scheme
-   * @param {?Boolean} renderTitle
+   * @param {any} security Security scheme
+   * @param {boolean=} renderTitle
    * @return {TemplateResult}
    */
   _oa2AuthTemplate(security, renderTitle) {
@@ -982,7 +975,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
   /**
    * Renders a template for Api Keys authorization.
    *
-   * @param {?Object} security Security scheme
+   * @param {any} security Security scheme
    * @return {TemplateResult}
    */
   _apiKeyTemplate(security) {

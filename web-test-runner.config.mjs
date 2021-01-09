@@ -17,7 +17,6 @@ export default {
 			<script src="node_modules/cryptojslib/components/enc-base64-min.js"></script>
 			<script src="node_modules/cryptojslib/rollups/md5.js"></script>
 			<script src="node_modules/cryptojslib/rollups/hmac-sha1.js"></script>
-			<script type="module" src="node_modules/@api-components/api-view-model-transformer/api-view-model-transformer.js"></script>
 			<script type="module" src="${testFramework}"></script>
 		  </body>
 		</html>`

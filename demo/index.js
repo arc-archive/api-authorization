@@ -18,7 +18,7 @@ class DemoPage extends ApiDemoPage {
     this.demoStates = ['Filled', 'Outlined', 'Anypoint'];
     this.demoState = 0;
     this.oauth2redirect = 'http://auth.advancedrestclient.com/arc.html';
-    this.authorizationUri = `${location.protocol}//${location.host}${location.pathname}oauth-authorize.html`;
+    this.authorizationUri = `${window.location.protocol}//${window.location.host}${window.location.pathname}oauth-authorize.html`;
   }
 
   _demoStateHandler(e) {
@@ -84,7 +84,7 @@ class DemoPage extends ApiDemoPage {
         <arc-interactive-demo
           .states="${demoStates}"
           .selectedState="${demoState}"
-          @state-chanegd="${this._demoStateHandler}"
+          @state-changed="${this._demoStateHandler}"
           ?dark="${darkThemeActive}"
         >
 
