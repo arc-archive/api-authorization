@@ -174,3 +174,14 @@
 * [ci skip] automated merge master->stage. syncing main branches [cd54308](https://github.com/advanced-rest-client/api-authorization/commit/cd543081633f818ceb5115208b966f7010e30915) by Ci agent
 
 
+<a name="0.5.1"></a>
+## [0.5.1](https://github.com/advanced-rest-client/api-authorization/compare/0.3.0...0.5.1) (2021-01-14)
+
+### Update
+
+* updating dependencies [b129ad5](https://github.com/advanced-rest-client/api-authorization/commit/b129ad5e2587514ed329becd28148632fef06485) by Pawel Psztyc
+* [ci skip] automated merge master->stage. syncing main branches [fcda1f8](https://github.com/advanced-rest-client/api-authorization/commit/fcda1f80836023edcb7ef4d3c42111ea546f7ba8) by Ci agent
+* merging with auth methor compoennt [b98c7d2](https://github.com/advanced-rest-client/api-authorization/commit/b98c7d2c215ca0e5074167f5d2013962a6b92d55) by Pawel Psztyc
+* [ci skip] automated merge master->stage. syncing main branches [59e57dd](https://github.com/advanced-rest-client/api-authorization/commit/59e57dd11f07a2c4710bcc7e7d01014393f1981b) by Ci agent
+
+
