@@ -1,7 +1,7 @@
 {
   "name": "@api-components/api-authorization",
   "description": "A custom element to render authorization editor with the support of the AMF model.",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
