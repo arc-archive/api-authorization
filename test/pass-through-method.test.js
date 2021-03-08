@@ -393,15 +393,9 @@ describe('Pass Through authorization', () => {
           factory.clearCache();
         });
 
-        it('returns false when field is invalid', () => {
+        it('returns true when required field is empty', () => {
           const result = element.validate();
-          assert.isFalse(result);
-        });
-
-        it('renders required field invalid', () => {
-          element.validate();
-          const input = element.shadowRoot.querySelector(`[name="queryStringProperty1"]`);
-          assert.isTrue(input.invalid);
+          assert.isTrue(result);
         });
 
         it('renders optional field valid', () => {

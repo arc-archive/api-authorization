@@ -302,15 +302,15 @@ describe('Api Key authorization', () => {
           elm.clearApiKeyCache();
         });
 
-        it('returns false when field is invalid', () => {
+        it('returns true when required field is empty', () => {
           const result = element.validate();
-          assert.isFalse(result);
+          assert.isTrue(result);
         });
 
-        it('renders required field invalid', () => {
+        it('renders required field with warning message', () => {
           element.validate();
-          const input = element.shadowRoot.querySelector(`[name="client_id"]`);
-          assert.isTrue(input.invalid);
+          const message = element.shadowRoot.querySelector(`[name="client_id"]`)._valueWarningMessage;
+          assert.isDefined(message);
         });
 
         it('returns true when valid', async () => {

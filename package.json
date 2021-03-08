@@ -1,7 +1,7 @@
 {
   "name": "@api-components/api-authorization",
   "description": "A custom element to render authorization editor with the support of the AMF model.",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -46,7 +46,7 @@
     "@anypoint-web-components/anypoint-item": "^1.0.5",
     "@anypoint-web-components/anypoint-listbox": "^1.0.4",
     "@api-components/amf-helper-mixin": "^4.3.4",
-    "@api-components/api-forms": "^0.1.2",
+    "@api-components/api-forms": "^0.2.1",
     "@open-wc/dedupe-mixin": "^1.3.0",
     "lit-element": "^2.3.1",
     "lit-html": "^1.2.1"

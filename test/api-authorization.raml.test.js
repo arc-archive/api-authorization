@@ -453,10 +453,10 @@ describe('ApiAuthorization RAML tests', () => {
           assert.isTrue(spy.called);
         });
 
-        it('element is invalid without required values', () => {
+        it('element is not invalid without required values', () => {
           const result = element.validate();
-          assert.isFalse(result, 'validation result is false');
-          assert.isTrue(element.invalid, 'is invalid');
+          assert.isTrue(result, 'validation result is true');
+          assert.isNotTrue(element.invalid, 'is not invalid');
         });
 
         it('element is valid with required values', async () => {
