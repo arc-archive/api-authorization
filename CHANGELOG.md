@@ -195,3 +195,19 @@
 * [ci skip] automated merge master->stage. syncing main branches [fcda1f8](https://github.com/advanced-rest-client/api-authorization/commit/fcda1f80836023edcb7ef4d3c42111ea546f7ba8) by Ci agent
 
 
+<a name="0.6.1"></a>
+## [0.6.1](https://github.com/advanced-rest-client/api-authorization/compare/0.5.0...0.6.1) (2021-03-09)
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [fe1a808](https://github.com/advanced-rest-client/api-authorization/commit/fe1a8084af7d9a2471289b6a06d547f8fdcb2500) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [ead6cf8](https://github.com/advanced-rest-client/api-authorization/commit/ead6cf8ab50e77b7ef40248b598969ac48398360) by Ci agent
+* updating dependencies [b129ad5](https://github.com/advanced-rest-client/api-authorization/commit/b129ad5e2587514ed329becd28148632fef06485) by Pawel Psztyc
+* [ci skip] automated merge master->stage. syncing main branches [fcda1f8](https://github.com/advanced-rest-client/api-authorization/commit/fcda1f80836023edcb7ef4d3c42111ea546f7ba8) by Ci agent
+
+
+### Features
+
+* pass credentialsSource property to api-authorization-method (#8) [2dfd459](https://github.com/advanced-rest-client/api-authorization/commit/2dfd4591bcc1aa080b706c58717ab643fa737b19) by Carolina Wright
+
+
