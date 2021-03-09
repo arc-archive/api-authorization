@@ -1,6 +1,6 @@
 import {CSSResult, LitElement, TemplateResult} from 'lit-element';
 import {AmfHelperMixin} from '@api-components/amf-helper-mixin';
-import { AuthorizationParams, ApiAuthorizationSettings } from './types';
+import { AuthorizationParams, ApiAuthorizationSettings, CredentialSource } from './types'
 
 export {clearCache};
 declare function clearCache(): void;
@@ -63,6 +63,10 @@ declare class ApiAuthorization extends AmfHelperMixin(LitElement) {
    * @attribute
    */
   requestBody: string;
+  /**
+   * @attribute
+   */
+  credentialsSource: Array<CredentialSource>;
   onchange: EventListener;
   get selectedMethods(): any[];
   readonly selectedSchemes: any[];
