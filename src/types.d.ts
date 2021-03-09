@@ -40,3 +40,14 @@ export declare interface PassThroughSetting {
 
 export declare interface RamlCustomSetting extends PassThroughSetting {
 }
+
+export declare interface CredentialSource {
+  grantType: string
+  credentials: Array<Source>
+}
+
+export declare interface Source {
+  name: string
+  clientId: string | undefined
+  clientSecret: string | undefined
+}

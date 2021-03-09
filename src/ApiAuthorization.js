@@ -92,7 +92,11 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
        * Whether or not the element is invalid. The validation state changes
        * when settings change or when the `validate()` function is called.
        */
-      invalid: { type: Boolean, reflect: true }
+      invalid: { type: Boolean, reflect: true },
+      /**
+       * List of credentials source
+       */
+      credentialsSource: { type: Array },
     };
   }
 
@@ -173,6 +177,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
     this.httpMethod = undefined;
     this.requestUrl = undefined;
     this.requestBody = undefined;
+    this.credentialsSource = []
   }
 
   /**
@@ -950,6 +955,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       outlined,
       redirectUri,
       amf,
+      credentialsSource
     } = this;
     const {
       accessToken,
@@ -968,6 +974,7 @@ export class ApiAuthorization extends AmfHelperMixin(LitElement) {
       .clientId="${clientId}"
       .clientSecret="${clientSecret}"
       .accessToken="${accessToken}"
+      .credentialsSource="${credentialsSource}"
       @change="${this._changeHandler}"
     ></api-authorization-method>`;
   }

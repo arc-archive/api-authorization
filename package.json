@@ -1,7 +1,7 @@
 {
   "name": "@api-components/api-authorization",
   "description": "A custom element to render authorization editor with the support of the AMF model.",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -39,7 +39,7 @@
     "@advanced-rest-client/arc-icons": "^3.2.2",
     "@advanced-rest-client/arc-marked": "^1.1.0",
     "@advanced-rest-client/arc-types": "^0.2.47",
-    "@advanced-rest-client/authorization-method": "^0.2.3",
+    "@advanced-rest-client/authorization-method": "^0.2.5",
     "@advanced-rest-client/events-target-mixin": "^3.1.1",
     "@anypoint-web-components/anypoint-button": "^1.1.1",
     "@anypoint-web-components/anypoint-dropdown-menu": "^0.1.14",
