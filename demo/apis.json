@@ -4,5 +4,6 @@
   "api-keys/api-keys.yaml": "OAS 3.0",
   "oauth-flows/oauth-flows.yaml": "OAS 3.0",
   "oas-bearer/oas-bearer.yaml": "OAS 3.0",
-  "oas-demo/oas-demo.yaml": "OAS 3.0"
+  "oas-demo/oas-demo.yaml": "OAS 3.0",
+  "21143/21143.json": { "type": "OAS 2.0", "mime": "application/json" }
 }

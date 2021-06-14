@@ -1,6 +1,6 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
 import {
-  oauth2GrantTypes,
+  oauth2GrantTypes, serializeOauth2Auth,
 } from '@advanced-rest-client/authorization/src/Oauth2MethodMixin.js';
 import { ApiViewModel } from '@api-components/api-forms';
 import { AmfLoader } from './amf-loader.js';
@@ -511,6 +511,29 @@ describe('OAuth 2', () => {
 
         it('sets the `pkce` property to true', () => {
           assert.isTrue(element.pkce);
+        });
+      });
+
+      describe('Application flow', () => {
+        let amf;
+        let element = /** @type ApiAuthorizationMethod */ (null);
+
+        before(async () => {
+          // @ts-ignore
+          amf = await AmfLoader.load(Boolean(compact), '21143');
+        });
+
+        beforeEach(async () => {
+          element = await modelFixture(amf, '/myz-api/claims/claims', 'get');
+        });
+
+        afterEach(() => {
+          viewModel.clearCache();
+        });
+
+        it('should set grant type to client_credentials', () => {
+          const details = element[serializeOauth2Auth]();
+          assert.equal(details.grantType, 'client_credentials');
         });
       });
     });

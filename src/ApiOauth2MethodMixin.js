@@ -136,6 +136,9 @@ const mxFunction = (base) => {
         auth: {},
         token: {},
       };
+      if (result.grantType === 'application') {
+        result.grantType = 'client_credentials'
+      }
       const { grantType } = result;
       switch (grantType) {
         case 'implicit':
