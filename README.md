@@ -27,7 +27,7 @@ Note, Digest authorization method is not supported at the time. If you are inter
 
 ## Usage
 
-The component extends `@advanced-rest-client/authorization-method` package to add API model support. The base component renders basic authorization methods.
+The component extends `@advanced-rest-client/authorization` package to add API model support. The base component renders basic authorization methods.
 The element requires to apply AML's JSON+LD model to the `amf` property and scheme definition to the `security` property.
 
 ### Installation
@@ -176,7 +176,7 @@ Digest and NTLM authorization methods interacts with the request in a way that m
 OAuth 1 authorization is based on signing the request data: HTTP method and the URL. This may change after the authorization is set up.
 Because of that the application that host this element must sign the request with the authorization header as described in [this document](https://oauth1.wp-api.org/docs/basics/Signing.html). Use `settings` getter to get current settings.
 
-The `@advanced-rest-client/oauth-authorization` component has `signRequest(request, auth)` method to sign a request for OAuth 1 protocol.
+The `@advanced-rest-client/authorization` component has `signRequest(request, auth)` method to sign a request for OAuth 1 protocol.
 
 Example
 

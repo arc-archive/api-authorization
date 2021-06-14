@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign */
-import { AuthorizationMethod } from '@advanced-rest-client/authorization-method';
+import { AuthorizationMethodElement as AuthorizationMethod } from '@advanced-rest-client/authorization';
 import { AmfHelperMixin } from '@api-components/amf-helper-mixin';
 import {
   normalizeType,
   METHOD_OAUTH2,
   METHOD_OAUTH1,
-} from '@advanced-rest-client/authorization-method/src/Utils.js';
+} from '@advanced-rest-client/authorization/src/Utils.js';
 import {
   serializeOauth2Auth,
-} from '@advanced-rest-client/authorization-method/src/Oauth2MethodMixin.js';
+} from '@advanced-rest-client/authorization/src/Oauth2MethodMixin.js';
 import {
   CustomMethodMixin,
   initializeCustomModel,

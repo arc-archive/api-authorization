@@ -1,4 +1,4 @@
-import {AuthorizationMethod} from '@advanced-rest-client/authorization-method';
+import {AuthorizationMethodElement as AuthorizationMethod} from '@advanced-rest-client/authorization';
 import {AmfHelperMixin} from '@api-components/amf-helper-mixin/amf-helper-mixin';
 import {CustomMethodMixin} from './CustomMethodMixin';
 import {PassThroughMethodMixin} from './PassThroughMethodMixin';
