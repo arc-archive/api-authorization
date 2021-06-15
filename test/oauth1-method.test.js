@@ -1,7 +1,7 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
 import {
   defaultSignatureMethods,
-} from '@advanced-rest-client/authorization-method/src/Oauth1MethodMixin.js';
+} from '@advanced-rest-client/authorization/src/Oauth1MethodMixin.js';
 import { ApiViewModel } from '@api-components/api-forms';
 import { AmfLoader } from './amf-loader.js';
 import '../api-authorization-method.js';

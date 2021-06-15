@@ -3,7 +3,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
 import { html } from 'lit-element';
-import { notifyChange, } from '@advanced-rest-client/authorization-method/src/Utils.js';
+import { notifyChange, } from '@advanced-rest-client/authorization/src/Utils.js';
 import { dedupeMixin } from '@open-wc/dedupe-mixin';
 import '@api-components/api-forms/api-form-item.js';
 

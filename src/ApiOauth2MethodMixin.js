@@ -9,10 +9,10 @@ import {
   oauth2CustomPropertiesTemplate,
   autoHide,
   serializeOauth2Auth,
-} from '@advanced-rest-client/authorization-method/src/Oauth2MethodMixin.js';
+} from '@advanced-rest-client/authorization/src/Oauth2MethodMixin.js';
 import {
   notifyChange,
-} from '@advanced-rest-client/authorization-method/src/Utils.js';
+} from '@advanced-rest-client/authorization/src/Utils.js';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
 import { ApiViewModel } from '@api-components/api-forms';
 import '@api-components/api-forms/api-form-item.js';
@@ -21,7 +21,7 @@ import '@advanced-rest-client/arc-marked/arc-marked.js';
 
 /** @typedef {import('./ApiAuthorizationMethod').ApiAuthorizationMethod} ApiAuthorizationMethod */
 /** @typedef {import('@advanced-rest-client/arc-types').FormTypes.AmfFormItem} AmfFormItem */
-/** @typedef {import('@advanced-rest-client/authorization-method/src/Oauth2MethodMixin').GrantType} GrantType */
+/** @typedef {import('@advanced-rest-client/authorization/src/Oauth2MethodMixin').GrantType} GrantType */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2CustomParameter} OAuth2CustomParameter */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.OAuth2Authorization} OAuth2Authorization */
 /** @typedef {import('@advanced-rest-client/arc-types').Authorization.TokenInfo} TokenInfo */
@@ -136,6 +136,9 @@ const mxFunction = (base) => {
         auth: {},
         token: {},
       };
+      if (result.grantType === 'application') {
+        result.grantType = 'client_credentials'
+      }
       const { grantType } = result;
       switch (grantType) {
         case 'implicit':

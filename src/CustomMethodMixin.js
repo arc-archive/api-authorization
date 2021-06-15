@@ -7,7 +7,7 @@ import '@advanced-rest-client/arc-marked/arc-marked.js';
 import '@api-components/api-forms/api-form-item.js';
 import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
 import '@advanced-rest-client/arc-icons/arc-icon.js';
-import { notifyChange } from '@advanced-rest-client/authorization-method/src/Utils.js';
+import { notifyChange } from '@advanced-rest-client/authorization/src/Utils.js';
 import { ApiViewModel } from '@api-components/api-forms';
 
 /** @typedef {import('lit-element').TemplateResult} TemplateResult */

@@ -1,8 +1,8 @@
 import { html } from 'lit-element';
 import { ApiDemoPage } from '@advanced-rest-client/arc-demo-helper';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
-import '@advanced-rest-client/oauth-authorization/oauth2-authorization.js';
-import '@advanced-rest-client/oauth-authorization/oauth1-authorization.js';
+import '@advanced-rest-client/authorization/oauth2-authorization.js';
+import '@advanced-rest-client/authorization/oauth1-authorization.js';
 import '../api-authorization.js';
 
 class DemoPage extends ApiDemoPage {
@@ -56,6 +56,7 @@ class DemoPage extends ApiDemoPage {
       ['api-keys', 'API key'],
       ['oauth-flows', 'OAS OAuth Flow'],
       ['oas-bearer', 'OAS Bearer'],
+      ['21143', '21143'],
     ].map(([file, label]) => html`
       <anypoint-item data-src="${file}-compact.json">${label} - compact model</anypoint-item>
       <anypoint-item data-src="${file}.json">${label}</anypoint-item>
