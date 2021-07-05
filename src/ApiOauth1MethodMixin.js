@@ -1,4 +1,4 @@
-import { defaultSignatureMethods } from '@advanced-rest-client/authorization-method/src/Oauth1MethodMixin.js';
+import { defaultSignatureMethods } from '@advanced-rest-client/authorization/src/Oauth1MethodMixin.js';
 import { dedupeMixin } from '@open-wc/dedupe-mixin';
 
 export const initializeOauth1Model = Symbol('initializeOauth1Model');

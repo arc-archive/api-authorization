@@ -4,7 +4,7 @@ import {
   oauth2CustomPropertiesTemplate,
   serializeOauth2Auth,
   GrantType,
-} from '@advanced-rest-client/authorization-method/src/Oauth2MethodMixin';
+} from '@advanced-rest-client/authorization/src/Oauth2MethodMixin';
 import { AmfFormItem } from "@advanced-rest-client/arc-types/src/forms/FormTypes";
 
 export declare const initializeOauth2Model: unique symbol;
