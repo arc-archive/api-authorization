@@ -506,6 +506,35 @@ describe('RAML custom scheme', () => {
           assert.strictEqual(params.params.debugTokenParam, '');
         });
       });
+
+      describe('Event-based credentials population', () => {
+        let amf;
+        let factory = /** @type ApiViewModel */ (null);
+
+        before(async () => {
+          amf = await AmfLoader.load(Boolean(compact), 'APIC-709');
+          factory = new ApiViewModel();
+        });
+
+        after(() => {
+          factory = null;
+        });
+
+        afterEach(() => {
+          factory.clearCache();
+        });
+
+
+        it('populates clientId and clientSecret fields', async () => {
+          const element = await modelFixture(amf, '/test', 'get');
+          await nextFrame();
+          element.dispatchEvent(new CustomEvent('credentialschanged', { detail: { id: 'id_test', secret: 'secret_test' } }));
+          await nextFrame();
+          const { headers } = element.serialize();
+          assert.equal(headers.testId, 'id_test');
+          assert.equal(headers.testSecret, 'secret_test');
+        });
+      });
     });
   });
 });

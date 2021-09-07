@@ -536,6 +536,36 @@ describe('OAuth 2', () => {
           assert.equal(details.grantType, 'client_credentials');
         });
       });
+
+      describe('Event-based credentials population', () => {
+        let amf;
+        let element = /** @type ApiAuthorizationMethod */ (null);
+
+        const fileName = 'oauth-flows';
+
+        before(async () => {
+          // @ts-ignore
+          amf = await AmfLoader.load(Boolean(compact), fileName);
+        });
+
+        beforeEach(async () => {
+          element = await modelFixture(amf, '/pets', 'patch');
+        });
+
+        afterEach(() => {
+          viewModel.clearCache();
+        });
+
+
+        it('populates clientId and clientSecret fields', async () => {
+          element.grantType = 'client_credentials';
+          await nextFrame();
+          element.dispatchEvent(new CustomEvent('credentialschanged', { detail: { id: 'id_test', secret: 'secret_test' } }));
+          await nextFrame();
+          assert.equal(element.clientId, 'id_test');
+          assert.equal(element.clientSecret, 'secret_test');
+        });
+      });
     });
   });
 });
