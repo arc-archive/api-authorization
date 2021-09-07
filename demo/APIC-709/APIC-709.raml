@@ -1,0 +1,23 @@
+#%RAML 1.0
+title: APIC-709
+
+annotationTypes:
+  credentialsId: boolean
+  credentialsSecret: boolean
+
+securitySchemes:
+  Pepe:
+    type: x-MyScheme
+    describedBy:
+      headers:
+        testId:
+          type: string
+          (credentialsId): true
+        testSecret:
+          type: string
+          (credentialsSecret): true
+
+/test:
+  securedBy:
+    - Pepe
+  get:
