@@ -19,6 +19,8 @@ import {
   updateQueryParameterCustom,
   updateHeaderCustom,
   clearCustom,
+  headersParam,
+  queryParametersParam,
 } from './CustomMethodMixin.js';
 import {
   PassThroughMethodMixin,
@@ -92,8 +94,19 @@ export class ApiAuthorizationMethod extends AmfHelperMixin(
     };
   }
 
+  constructor() {
+    super()
+    this._handleCredentialsChanged = this._handleCredentialsChanged.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.addEventListener('credentialschanged', this._handleCredentialsChanged);
+  }
+
   disconnectedCallback() {
     super.disconnectedCallback();
+    this.removeEventListener('credentialschanged', this._handleCredentialsChanged);
   }
 
   updated(changed) {
@@ -123,6 +136,27 @@ export class ApiAuthorizationMethod extends AmfHelperMixin(
       this.__schemeDebouncer = false;
       this._processSecurity();
     });
+  }
+
+  _handleCredentialsChanged(e) {
+    const { id, secret } = e.detail;
+    const headers = this[headersParam] || [];
+    const queryParameters = this[queryParametersParam] || [];
+    [headers, queryParameters].forEach(params => {
+      params.forEach(param => {
+        if (param.schema.isCredentialsIdField || param.name === 'clientId') {
+          param.value = id;
+        }
+        if (param.schema.isCredentialsSecretField || param.name === 'clientSecret') {
+          param.value = secret;
+        }
+      })
+    });
+    if (this.grantType) {
+      this.clientId = id;
+      this.clientSecret = secret;
+    }
+    this.requestUpdate()
   }
 
   _processSecurity() {
