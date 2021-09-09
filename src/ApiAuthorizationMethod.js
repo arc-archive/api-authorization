@@ -96,17 +96,17 @@ export class ApiAuthorizationMethod extends AmfHelperMixin(
 
   constructor() {
     super()
-    this._handleCredentialsChanged = this._handleCredentialsChanged.bind(this);
+    this._handleCredentialsChanged = this._handleInformationChanged.bind(this);
   }
 
   connectedCallback() {
     super.connectedCallback();
-    this.addEventListener('credentialschanged', this._handleCredentialsChanged);
+    this.addEventListener('securitysettingsinfochanged', this._handleInformationChanged);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('credentialschanged', this._handleCredentialsChanged);
+    this.removeEventListener('securitysettingsinfochanged', this._handleInformationChanged);
   }
 
   updated(changed) {
@@ -138,25 +138,10 @@ export class ApiAuthorizationMethod extends AmfHelperMixin(
     });
   }
 
-  _handleCredentialsChanged(e) {
-    const { id, secret } = e.detail;
-    const headers = this[headersParam] || [];
-    const queryParameters = this[queryParametersParam] || [];
-    [headers, queryParameters].forEach(params => {
-      params.forEach(param => {
-        if (param.schema.isCredentialsIdField || param.name === 'clientId') {
-          param.value = id;
-        }
-        if (param.schema.isCredentialsSecretField || param.name === 'clientSecret') {
-          param.value = secret;
-        }
-      })
-    });
-    if (this.grantType) {
-      this.clientId = id;
-      this.clientSecret = secret;
-    }
-    this.requestUpdate()
+  _handleInformationChanged(e) {
+    const { detail } = e;
+    const serialized = this.serialize();
+    this.restore({ ...serialized, ...detail });
   }
 
   _processSecurity() {
