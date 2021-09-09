@@ -92,8 +92,19 @@ export class ApiAuthorizationMethod extends AmfHelperMixin(
     };
   }
 
+  constructor() {
+    super()
+    this._handleInformationChanged = this._handleInformationChanged.bind(this);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.addEventListener('securitysettingsinfochanged', this._handleInformationChanged);
+  }
+
   disconnectedCallback() {
     super.disconnectedCallback();
+    this.removeEventListener('securitysettingsinfochanged', this._handleInformationChanged);
   }
 
   updated(changed) {
@@ -123,6 +134,12 @@ export class ApiAuthorizationMethod extends AmfHelperMixin(
       this.__schemeDebouncer = false;
       this._processSecurity();
     });
+  }
+
+  _handleInformationChanged(e) {
+    const { detail } = e;
+    const serialized = this.serialize();
+    this.restore({ ...serialized, ...detail });
   }
 
   _processSecurity() {

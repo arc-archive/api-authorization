@@ -506,6 +506,81 @@ describe('RAML custom scheme', () => {
           assert.strictEqual(params.params.debugTokenParam, '');
         });
       });
+
+      describe('Event-based population', () => {
+        let amf;
+        let factory = /** @type ApiViewModel */ (null);
+        let element = /** @type ApiAuthorizationMethod */ (null);
+
+        before(async () => {
+          amf = await AmfLoader.load(Boolean(compact));
+          factory = new ApiViewModel();
+        });
+
+        beforeEach(async () => {
+          element = await modelFixture(amf, '/custom1', 'get');
+        });
+
+        after(() => {
+          factory = null;
+        });
+
+        afterEach(() => {
+          factory.clearCache();
+        });
+
+
+        it('populates header field', async () => {
+          const settings = {
+            headers: {
+              SpecialTokenHeader: 'test_value',
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: settings }));
+          await nextFrame();
+          const { headers } = element.serialize();
+          assert.equal(headers.SpecialTokenHeader, 'test_value');
+        });
+
+        it('populates query params fields', async () => {
+          const settings = {
+            params: {
+              debugTokenParam: 'Info',
+              booleanTokenParam: true,
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: settings }));
+          await nextFrame();
+          const { params } = element.serialize();
+          assert.equal(params.debugTokenParam, 'Info');
+          assert.equal(params.booleanTokenParam, true);
+        });
+
+        it('changes only one query params field', async () => {
+          const settings = {
+            params: {
+              debugTokenParam: 'Info',
+              booleanTokenParam: false,
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: settings }));
+          await nextFrame();
+          const updatedSettings = {
+            params: {
+              debugTokenParam: 'Info_1',
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: updatedSettings }));
+          await nextFrame();
+          const { params } = element.serialize();
+          assert.equal(params.debugTokenParam, 'Info_1');
+          assert.equal(params.booleanTokenParam, false);
+        });
+      });
     });
   });
 });
