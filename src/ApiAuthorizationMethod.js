@@ -19,8 +19,6 @@ import {
   updateQueryParameterCustom,
   updateHeaderCustom,
   clearCustom,
-  headersParam,
-  queryParametersParam,
 } from './CustomMethodMixin.js';
 import {
   PassThroughMethodMixin,
