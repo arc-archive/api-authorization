@@ -96,7 +96,7 @@ export class ApiAuthorizationMethod extends AmfHelperMixin(
 
   constructor() {
     super()
-    this._handleCredentialsChanged = this._handleInformationChanged.bind(this);
+    this._handleInformationChanged = this._handleInformationChanged.bind(this);
   }
 
   connectedCallback() {
