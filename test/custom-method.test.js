@@ -557,6 +557,29 @@ describe('RAML custom scheme', () => {
           assert.equal(params.debugTokenParam, 'Info');
           assert.equal(params.booleanTokenParam, true);
         });
+
+        it('changes only one query params field', async () => {
+          const settings = {
+            params: {
+              debugTokenParam: 'Info',
+              booleanTokenParam: false,
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: settings }));
+          await nextFrame();
+          const updatedSettings = {
+            params: {
+              debugTokenParam: 'Info_1',
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: updatedSettings }));
+          await nextFrame();
+          const { params } = element.serialize();
+          assert.equal(params.debugTokenParam, 'Info_1');
+          assert.equal(params.booleanTokenParam, false);
+        });
       });
     });
   });
