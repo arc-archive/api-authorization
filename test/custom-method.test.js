@@ -507,13 +507,18 @@ describe('RAML custom scheme', () => {
         });
       });
 
-      describe('Event-based credentials population', () => {
+      describe('Event-based population', () => {
         let amf;
         let factory = /** @type ApiViewModel */ (null);
+        let element = /** @type ApiAuthorizationMethod */ (null);
 
         before(async () => {
-          amf = await AmfLoader.load(Boolean(compact), 'APIC-709');
+          amf = await AmfLoader.load(Boolean(compact));
           factory = new ApiViewModel();
+        });
+
+        beforeEach(async () => {
+          element = await modelFixture(amf, '/custom1', 'get');
         });
 
         after(() => {
@@ -525,14 +530,32 @@ describe('RAML custom scheme', () => {
         });
 
 
-        it('populates clientId and clientSecret fields', async () => {
-          const element = await modelFixture(amf, '/test', 'get');
-          await nextFrame();
-          element.dispatchEvent(new CustomEvent('credentialschanged', { detail: { id: 'id_test', secret: 'secret_test' } }));
+        it('populates header field', async () => {
+          const settings = {
+            headers: {
+              SpecialTokenHeader: 'test_value',
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: settings }));
           await nextFrame();
           const { headers } = element.serialize();
-          assert.equal(headers.testId, 'id_test');
-          assert.equal(headers.testSecret, 'secret_test');
+          assert.equal(headers.SpecialTokenHeader, 'test_value');
+        });
+
+        it('populates query params fields', async () => {
+          const settings = {
+            params: {
+              debugTokenParam: 'Info',
+              booleanTokenParam: true,
+            },
+          }
+          // @ts-ignore
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: settings }));
+          await nextFrame();
+          const { params } = element.serialize();
+          assert.equal(params.debugTokenParam, 'Info');
+          assert.equal(params.booleanTokenParam, true);
         });
       });
     });

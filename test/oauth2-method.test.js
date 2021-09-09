@@ -560,7 +560,8 @@ describe('OAuth 2', () => {
         it('populates clientId and clientSecret fields', async () => {
           element.grantType = 'client_credentials';
           await nextFrame();
-          element.dispatchEvent(new CustomEvent('credentialschanged', { detail: { id: 'id_test', secret: 'secret_test' } }));
+          const settings = { clientId: 'id_test', clientSecret: 'secret_test' };
+          element.dispatchEvent(new CustomEvent('securitysettingsinfochanged', { detail: settings }));
           await nextFrame();
           assert.equal(element.clientId, 'id_test');
           assert.equal(element.clientSecret, 'secret_test');
