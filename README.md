@@ -1,4 +1,8 @@
-# api-authorization
+# DEPRECATED
+
+This component is deprecated. The code base has been moved to [api-request](https://github.com/advanced-rest-client/api-request) module.
+
+--------
 
 A custom element that renders and manages authorization state in AMF powered application.
 
