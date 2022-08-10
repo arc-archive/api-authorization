@@ -259,6 +259,9 @@ const mxFunction = (base) => {
       if (Array.isArray(settings)) {
         [settings] = settings;
       }
+
+      const displayName = /** @type string */ (this._getValue(model, this.ns.aml.vocabularies.core.name) 
+       || this._getValue(settings, this.ns.aml.vocabularies.core.name));
       const name = /** @type string */ (this._getValue(settings, this.ns.aml.vocabularies.core.name));
       const binding = /** @type string */ (this._getValue(settings, this.ns.aml.vocabularies.security.in));
 
@@ -272,7 +275,7 @@ const mxFunction = (base) => {
             required: true,
             description: '',
             apiType: 'string',
-            inputLabel: `The value of the ${binding}`,
+            inputLabel: displayName,
             inputType: 'text',
             isEnum: false,
             isArray: false,
