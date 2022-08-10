@@ -433,7 +433,7 @@ describe('Pass Through authorization', () => {
 
         it('is accessible for custom fields (headers and qp)', async () => {
           const element = await modelFixture(amf, '/passthrough', 'get');
-          await assert.isAccessible(element);
+          await assert.isAccessible(element, { ignoredRules: ['aria-allowed-attr'] });
         });
       });
 

@@ -462,7 +462,7 @@ describe('RAML custom scheme', () => {
 
         it('is accessible for custom fields (headers and qp)', async () => {
           const element = await modelFixture(amf, '/custom1', 'get');
-          await assert.isAccessible(element);
+          await assert.isAccessible(element, { ignoredRules: ['aria-allowed-attr'] });
         });
       });
 
