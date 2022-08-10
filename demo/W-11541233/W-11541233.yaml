@@ -1,0 +1,43 @@
+---
+openapi: 3.0.3
+info:
+  title: Multiple API Keys API
+security:
+  - ApiId: []
+    ApiKey: []
+paths:
+  /employees:
+    get:
+      description: Returns all employees
+      responses:
+        "200":
+          description: List of employees
+          content:
+            application/json:
+              schema:
+                maxLength: 100
+                type: array
+                items:
+                  $ref: '#/components/schemas/employee'
+components:
+  schemas:
+    employee:
+      title: Employee
+      required:
+      - employeeid
+      type: object
+      properties:
+        employeeid:
+          type: string
+          description: Unique employee id
+          nullable: false
+          example: "10203"
+  securitySchemes:
+    ApiId:
+      type: apiKey
+      name: api_id
+      in: header
+    ApiKey:
+      type: apiKey
+      name: api_key
+      in: header
