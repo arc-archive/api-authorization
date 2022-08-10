@@ -424,7 +424,6 @@ describe('Api Key authorization', () => {
         beforeEach(async () => {
           const security = AmfLoader.lookupSecurities(amf, '/employees', 'get');
           element = await basicFixture(amf, security);
-          element.clearApiKeyCache();
         });
 
         afterEach(() => {
