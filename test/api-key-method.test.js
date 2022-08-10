@@ -412,6 +412,29 @@ describe('Api Key authorization', () => {
           assert.strictEqual(params.cookies.client_secret, '');
         });
       });
+
+      describe('multiple API keys', () => {
+        let amf;
+        let element;
+
+        before(async () => {
+          amf = await AmfLoader.load(Boolean(compact), 'W-11541233');
+        });
+
+        beforeEach(async () => {
+          const security = AmfLoader.lookupSecurities(amf, '/employees', 'get');
+          element = await basicFixture(amf, security);
+          element.clearApiKeyCache();
+        });
+
+        afterEach(() => {
+          element.clearApiKeyCache();
+        });
+
+        it('should set inputLabel to "ApiId"', () => {
+          assert.equal(element.shadowRoot.querySelector('api-form-item').model.schema.inputLabel, 'ApiId')
+        });
+      })
     });
   });
 });
