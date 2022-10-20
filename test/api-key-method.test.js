@@ -430,8 +430,8 @@ describe('Api Key authorization', () => {
           element.clearApiKeyCache();
         });
 
-        it('should set inputLabel to "ApiId"', () => {
-          assert.equal(element.shadowRoot.querySelector('api-form-item').model.schema.inputLabel, 'ApiId')
+        it('should set inputLabel to "api_id"', () => {
+          assert.equal(element.shadowRoot.querySelector('api-form-item').model.schema.inputLabel, 'api_id')
         });
       })
     });

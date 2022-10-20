@@ -260,8 +260,6 @@ const mxFunction = (base) => {
         [settings] = settings;
       }
 
-      const displayName = /** @type string */ (this._getValue(model, this.ns.aml.vocabularies.core.name) 
-       || this._getValue(settings, this.ns.aml.vocabularies.core.name));
       const name = /** @type string */ (this._getValue(settings, this.ns.aml.vocabularies.core.name));
       const binding = /** @type string */ (this._getValue(settings, this.ns.aml.vocabularies.security.in));
 
@@ -275,7 +273,7 @@ const mxFunction = (base) => {
             required: true,
             description: '',
             apiType: 'string',
-            inputLabel: displayName,
+            inputLabel: name,
             inputType: 'text',
             isEnum: false,
             isArray: false,
